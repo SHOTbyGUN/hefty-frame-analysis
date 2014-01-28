@@ -1,0 +1,7 @@
+<#if licenseFirst??>
+${licenseFirst}
+</#if>
+${licensePrefix}Software made by SHOT(by)GUN <https://twitter.com/SHOTbyGUN>
+<#if licenseLast??>
+${licenseLast}
+</#if>
