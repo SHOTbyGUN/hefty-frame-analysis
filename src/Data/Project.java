@@ -26,7 +26,6 @@ public class Project {
     // data
     public List frames;
     public String videoInfo;
-    public long expectedFrames;
     public long totalFrames;
     
     // data reader
@@ -83,6 +82,10 @@ public class Project {
                     
                 } else {
                     videoInfo += line;
+                    /*
+                    TODO detect duration in seconds * fps * 2
+                    = Expected frames total
+                    = Progressbar possbile
                     if(line.startsWith("  Duration:")) {
                         line = line.trim();
                         int startPoint = line.indexOf(": ");
@@ -90,6 +93,7 @@ public class Project {
                         System.out.println(line);
                         System.out.println(line.substring(startPoint, endPoint));
                     }
+                    */
                 }
             }
             

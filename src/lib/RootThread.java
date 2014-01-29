@@ -17,10 +17,6 @@ public abstract class RootThread implements Runnable {
     protected Thread thread;
     protected boolean keepRunning;
     
-    protected int ticks;
-    public static final int ticksOutAt = 1000;
-    protected int ticksOut;
-    protected final Lock ticksOutLock = new ReentrantLock();
     
     public RootThread(String threadName) {
         this.threadName = threadName;
@@ -32,31 +28,7 @@ public abstract class RootThread implements Runnable {
         return myClass.getClass().getSimpleName();
     }
     
-    protected void addTick() {
-        
-        ticks++;
-        if(ticks >= ticksOutAt) {
-            if(ticksOutLock.tryLock()) {
-                ticksOut += ticks;
-                ticks = 0;
-                ticksOutLock.unlock();
-            }
-        }
-    }
-    
-    public int colletTicks() {
-        ticksOutLock.lock();
-        int myTicksOut = 0;
-        try {
-            myTicksOut = ticksOut;
-            ticksOut = 0;
-        } catch (Exception ex) {
-            Logger.log(RootThread.class.getSimpleName(), "colletTicks lock error - " + threadName + " ticks compromised");
-        } finally {
-            ticksOutLock.unlock();
-        }
-        return myTicksOut;
-    }
+ 
     
     public void start() {
         keepRunning = true;

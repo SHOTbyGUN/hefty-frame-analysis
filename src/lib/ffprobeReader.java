@@ -147,13 +147,6 @@ public class ffprobeReader extends RootThread {
         return null;
     }
     
-    private void flushTicks() {
-        ticksOutLock.lock();
-        ticksOut += ticks;
-        ticks = 0;
-        ticksOutLock.unlock();
-    }
-    
     @Override
     public void stop() {
         Statics.jobList.removeJob.add(this);

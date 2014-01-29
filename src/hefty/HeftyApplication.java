@@ -2,7 +2,7 @@
  * Software made by SHOT(by)GUN <https://twitter.com/SHOTbyGUN>
  */
 
-package hefty.frame.analysis;
+package hefty;
 
 import Data.Project;
 import java.io.File;

@@ -2,7 +2,7 @@
  * Software made by SHOT(by)GUN <https://twitter.com/SHOTbyGUN>
  */
 
-package hefty.frame.analysis;
+package hefty;
 
 import java.awt.Desktop;
 import java.io.IOException;

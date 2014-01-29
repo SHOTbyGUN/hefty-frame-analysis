@@ -4,11 +4,9 @@
  */
 package lib;
 
-import hefty.frame.analysis.HeftyApplication;
-import hefty.frame.analysis.MainGUIController;
+import hefty.HeftyApplication;
+import hefty.MainGUIController;
 import java.io.File;
-import javafx.application.HostServices;
-import javafx.scene.Parent;
 
 /**
  *

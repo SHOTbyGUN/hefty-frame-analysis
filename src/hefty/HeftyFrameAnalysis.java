@@ -1,4 +1,4 @@
-package hefty.frame.analysis;
+package hefty;
 
 import java.io.File;
 import javafx.application.Application;
