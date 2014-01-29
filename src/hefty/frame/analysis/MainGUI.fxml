@@ -23,7 +23,7 @@
 </children></VBox>
 </top>
 <bottom><VBox alignment="CENTER" prefHeight="100.0">
-<children><Label text="Created by Teemu Kauhanen" /><Hyperlink text="twitter.com/SHOTbyGUN" />
+<children><Label text="Created by Teemu Kauhanen" /><Hyperlink onMouseClicked="#twitterLinkClicked" text="twitter.com/SHOTbyGUN" />
 </children></VBox>
 </bottom>
 <center><Text fx:id="dragDropText" strokeType="OUTSIDE" strokeWidth="0.0" text="Drag and drop files here">

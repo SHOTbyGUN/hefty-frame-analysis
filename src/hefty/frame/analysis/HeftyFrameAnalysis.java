@@ -6,6 +6,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
@@ -29,8 +30,6 @@ Needed data
  * @author shotbygun
  */
 public class HeftyFrameAnalysis extends Application {
-    
-    Rectangle rectangle;
     
     @Override
     public void start(Stage stage) throws Exception {
@@ -56,6 +55,7 @@ public class HeftyFrameAnalysis extends Application {
                 }
             }
         });
+        
         
         // Add Drag and Drop functionality
         // Source: http://www.java2s.com/Code/Java/JavaFX/DraganddropfiletoScene.htm

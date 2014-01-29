@@ -25,7 +25,8 @@ public class Project {
     
     // data
     public List frames;
-    public List<String> videoInfo;
+    public String videoInfo;
+    public long expectedFrames;
     public long totalFrames;
     
     // data reader
@@ -43,7 +44,6 @@ public class Project {
         // Init variables
         // TODO frames list should be initialized as about correct size
         frames = new ArrayList();
-        videoInfo = new ArrayList();
         
         // After init
         readVideoInfo();
@@ -53,7 +53,7 @@ public class Project {
         frames = Collections.synchronizedList(new ArrayList(size));
     }
     
-    public void startReadingFrames(int start, int end) {
+    public void startReadingFrames() {
         // Todo slice read
         reader.start();
     }
@@ -63,8 +63,10 @@ public class Project {
         if(input == null)
             throw new Exception("Unable to read video info");
         
+        videoInfo = "";
         String line;
         String text = "";
+        boolean startReading = false;
         
         if(Statics.dumpData) {
             while ((line = input.readLine()) != null) {
@@ -74,19 +76,29 @@ public class Project {
             Logger.log("ReadVideoInfo", text);
         } else {
             while ((line = input.readLine()) != null) {
-                line = line.trim();
-                if(line.startsWith("Stream #"))
-                    videoInfo.add(line);
+                if(!startReading) {
+                    line = line.trim();
+                    if(line.startsWith("Input #"))
+                        startReading = true;
+                    
+                } else {
+                    videoInfo += line;
+                    if(line.startsWith("  Duration:")) {
+                        line = line.trim();
+                        int startPoint = line.indexOf(": ");
+                        int endPoint = line.indexOf(", ");
+                        System.out.println(line);
+                        System.out.println(line.substring(startPoint, endPoint));
+                    }
+                }
             }
             
             System.out.println("Video Info:");
-            for(String entry : videoInfo) {
-                System.out.println(entry);
-            }
+            System.out.println(videoInfo);
         }
     }
     
-    private void closeProject() {
+    public void closeProject() {
         reader.stop();
     }
 }

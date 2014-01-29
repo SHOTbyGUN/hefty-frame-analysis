@@ -7,6 +7,7 @@ package lib;
 import hefty.frame.analysis.HeftyApplication;
 import hefty.frame.analysis.MainGUIController;
 import java.io.File;
+import javafx.application.HostServices;
 import javafx.scene.Parent;
 
 /**
@@ -35,6 +36,5 @@ public class Statics {
     public static Logger logger;
     
     // Runtime variables
-    public static Parent root;
     public static String ffprobeExecutablePath = "D:\\Ohjelmat\\ffprobe\\bin\\ffprobe.exe";
 }

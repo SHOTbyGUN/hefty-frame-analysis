@@ -4,6 +4,9 @@
 
 package hefty.frame.analysis;
 
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
@@ -14,10 +17,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
+import lib.Logger;
 import lib.Statics;
+import sun.awt.DisplayChangedListener;
 
 /**
  * FXML Controller class
@@ -52,6 +60,18 @@ public class MainGUIController implements Initializable {
     @FXML
     private void clearLogAction(ActionEvent event) {
         logTextArea.setText("");
+    }
+    
+    @FXML
+    private void twitterLinkClicked(MouseEvent event) {
+        try {
+            
+            final String url = "https://twitter.com/SHOTbyGUN";
+            Desktop.getDesktop().browse(new URI(url));
+            
+        } catch (Exception ex) {
+            Logger.log(MainGUIController.class.getSimpleName(), "twitterLinkClicked error", ex);
+        }
     }
     
     public void setLogText(final String text) {

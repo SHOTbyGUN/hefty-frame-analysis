@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  *
@@ -17,17 +18,13 @@ import java.util.ArrayList;
 public class FileOperations {
     
     public static String getWorkingDirectory() {
-        if(isWindows()) {
+        if(SystemUtils.IS_OS_WINDOWS) {
             return System.getenv("APPDATA") + File.separator + Statics.applicationShortName;
         } else {
             // Linux / Unix / Mac?
             return System.getProperty("user.home") + File.separator 
                     + "." + Statics.applicationShortName;
         }
-    }
-    
-    public static boolean isWindows() {
-        return System.getProperty("os.name").startsWith("Windows");
     }
     
     public static File getFile(String path) throws Exception {

@@ -13,7 +13,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 
 /**
  *
@@ -63,11 +62,13 @@ public class ffprobeReader extends RootThread {
                     // Look for new frame opening
                     if(line.startsWith("[FRAME")) {
                         frame = new Frame();
+                        project.frames.add(frame);
                     }
                 } else {
                     // we have frame, do we want to close it?
                     if(line.startsWith("[/FRAME")) {
                         frame = null;
+                        project.totalFrames++;
                     } else {
                         // ok we did not close the frame
                         // we must have new data to the current one
@@ -78,14 +79,17 @@ public class ffprobeReader extends RootThread {
                 }
                 
                 
-                addTick();
+                //addTick();
             }
             
             // if we got here we succeeded
-            flushTicks();
+            //flushTicks();
             Statics.jobList.removeJob.add(this);
             Logger.log(project.projectName, "Frames imported");
-            
+            if(Statics.debug) {
+                System.out.println("project.totalFrames" + project.totalFrames);
+                System.out.println("project.frames.size()" + project.frames.size());
+            }
         } catch (IOException ex) {
             Logger.log(threadName, "error reading file: " + project.videoFileAbsolutePath, ex);
         }
@@ -96,6 +100,7 @@ public class ffprobeReader extends RootThread {
             // we should not need be able to read video info and frame data at the same time.... but this prevents it anyway
             readLock.lock();
             // Example command line: "D:\Ohjelmat\ffprobe\bin\ffprobe.exe" -show_frames "D:\Videot\Stream\filu (02).mp4"
+            // TODO a way to start ffprobe in low priority
             process = Runtime.getRuntime().exec(Statics.ffprobeExecutablePath + " " + params);
             input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
@@ -106,7 +111,8 @@ public class ffprobeReader extends RootThread {
                     public void run() {
                         try {
                             while((line = error.readLine()) != null) {
-                                System.out.println(line);
+                                if(Statics.debug)
+                                    System.out.println(line);
                             }
                             process.waitFor();
                         } catch (InterruptedException ex) {
@@ -122,7 +128,8 @@ public class ffprobeReader extends RootThread {
                 process.waitFor();
             }
             
-            // ffprobe outputs video info to error stream and frame data to input stream
+            // ffprobe outputs video info to error stream
+            // frame data to input stream
             if(runOnBackground)
                 return input;
             else

@@ -6,9 +6,7 @@ package lib;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import javafx.application.Platform;
 import javafx.scene.control.ListView;
@@ -21,10 +19,8 @@ public class JobList extends TickThread {
     
     public List<ffprobeReader> jobList = Collections.synchronizedList(new ArrayList());
     public ConcurrentLinkedQueue<ffprobeReader> removeJob = new ConcurrentLinkedQueue();
-    private final HashMap<String, Long> jobMap = new HashMap<>();
     
     private ffprobeReader item;
-    private long jobTicks, tempTicks;
 
     public JobList() {
         super(JobList.class.getSimpleName());
@@ -37,16 +33,8 @@ public class JobList extends TickThread {
             
             // remove jobs
             while((item = removeJob.poll()) != null) {
-                item.project.totalFrames = jobMap.get(item.project.projectName);
-                jobMap.remove(item.project.projectName);
-            }
-            
-            // add or update ticks for job
-            for(ffprobeReader job : jobList) {
-                if(jobMap.containsKey(job.project.projectName))
-                    jobMap.put(job.project.projectName, jobMap.get(job.project.projectName) + job.colletTicks());
-                else
-                    jobMap.put(job.project.projectName, (long) job.colletTicks());
+                //jobMap.remove(item.project.projectName);
+                jobList.remove(item);
             }
             
             Platform.runLater(printJobs);
@@ -63,8 +51,8 @@ public class JobList extends TickThread {
         public void run() {
             listView = Statics.mainGuiController.getJobListView();
             listView.getItems().clear();
-            for(Map.Entry<String, Long> pair : jobMap.entrySet()) {
-                listView.getItems().add(pair.getKey() + " " + pair.getValue());
+            for(ffprobeReader job : jobList) {
+                listView.getItems().add(job.project.projectName + " " + job.project.totalFrames + " frames");
             }
             
             // Resize job view
