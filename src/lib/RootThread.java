@@ -19,8 +19,8 @@ public abstract class RootThread implements Runnable {
     
     protected int ticks;
     public static final int ticksOutAt = 1000;
-    private int ticksOut;
-    private final Lock ticksOutLock = new ReentrantLock();
+    protected int ticksOut;
+    protected final Lock ticksOutLock = new ReentrantLock();
     
     public RootThread(String threadName) {
         this.threadName = threadName;
@@ -33,6 +33,7 @@ public abstract class RootThread implements Runnable {
     }
     
     protected void addTick() {
+        
         ticks++;
         if(ticks >= ticksOutAt) {
             if(ticksOutLock.tryLock()) {

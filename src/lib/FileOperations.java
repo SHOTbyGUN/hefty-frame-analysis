@@ -4,7 +4,7 @@
  */
 package lib;
 
-import hefty.frame.analysis.GodObject;
+import hefty.frame.analysis.HeftyApplication;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;

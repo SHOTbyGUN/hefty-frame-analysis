@@ -1,10 +1,15 @@
 package hefty.frame.analysis;
 
+import java.io.File;
 import javafx.application.Application;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import lib.Logger;
@@ -25,35 +30,68 @@ Needed data
  */
 public class HeftyFrameAnalysis extends Application {
     
+    Rectangle rectangle;
     
     @Override
     public void start(Stage stage) throws Exception {
         
         // Start the application by initializing The main class of the application
-        final GodObject application = new GodObject();
+        Statics.application = new HeftyApplication();
         
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainGUI.fxml"));
+        fxmlLoader.load();
+        Statics.mainGuiController = fxmlLoader.getController();
         
-        Parent root = FXMLLoader.load(getClass().getResource("MainGUI.fxml"));
-        
+        Parent root = fxmlLoader.getRoot();
         Scene scene = new Scene(root);
         
         stage.setScene(scene);
         stage.show();
         
         scene.getWindow().setOnCloseRequest(new EventHandler<WindowEvent>() {
-        @Override
-        public void handle(WindowEvent ev) {
-            if (!application.shutdown()) {
-                ev.consume();
+            @Override
+            public void handle(WindowEvent ev) {
+                if (!Statics.application.shutdown()) {
+                    ev.consume();
+                }
             }
-        }
-    });
+        });
         
+        // Add Drag and Drop functionality
+        // Source: http://www.java2s.com/Code/Java/JavaFX/DraganddropfiletoScene.htm
         
+        scene.setOnDragOver(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent event) {
+                Dragboard db = event.getDragboard();
+                if (db.hasFiles()) {
+                    event.acceptTransferModes(TransferMode.COPY);
+                } else {
+                    event.consume();
+                }
+            }
+        });
         
+        scene.setOnDragDropped(new EventHandler<DragEvent>() {
+            @Override
+            public void handle(DragEvent event) {
+                Dragboard db = event.getDragboard();
+                boolean success = false;
+                if (db.hasFiles()) {
+                    success = true;
+                    String filePath = null;
+                    for (File file:db.getFiles()) {
+                        Statics.application.createNewProject(file);
+                    }
+                }
+                event.setDropCompleted(success);
+                event.consume();
+            }
+        });
+
         Logger.log(Statics.applicationName, "Application started");
         
-        application.test();
+        
     }
 
     /**

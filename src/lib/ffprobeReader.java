@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
 
 /**
  *
@@ -34,20 +35,25 @@ public class ffprobeReader extends RootThread {
     
     public ffprobeReader(Project project) throws Exception {
         super(ffprobeReader.class.getSimpleName());
+        
+        thread.setDaemon(true);
+        
         this.project = project;
     }
     
     public BufferedReader getVideoInfo() {
-        return execute('"' + project.videoFileAbsolutePath + '"');
+        return execute('"' + project.videoFileAbsolutePath + '"', false);
     }
     
     @Override
     public void run() {
         
+        Statics.jobList.jobList.add(this);
+        
         Frame frame = null;
         String[] splitString;
         
-        BufferedReader data = execute("-show_frames \"" + project.videoFileAbsolutePath + '"');
+        BufferedReader data = execute("-show_frames \"" + project.videoFileAbsolutePath + '"', true);
         try {
             while (keepRunning && (line = data.readLine()) != null) {
                 // close the thread (aborted) OR do something with each line
@@ -72,39 +78,59 @@ public class ffprobeReader extends RootThread {
                 }
                 
                 
-                
+                addTick();
             }
+            
+            // if we got here we succeeded
+            flushTicks();
+            Statics.jobList.removeJob.add(this);
+            Logger.log(project.projectName, "Frames imported");
+            
         } catch (IOException ex) {
             Logger.log(threadName, "error reading file: " + project.videoFileAbsolutePath, ex);
         }
     }
 
-    public BufferedReader execute(String params) {
+    public BufferedReader execute(String params, boolean runOnBackground) {
         try {
             // we should not need be able to read video info and frame data at the same time.... but this prevents it anyway
             readLock.lock();
             // Example command line: "D:\Ohjelmat\ffprobe\bin\ffprobe.exe" -show_frames "D:\Videot\Stream\filu (02).mp4"
             process = Runtime.getRuntime().exec(Statics.ffprobeExecutablePath + " " + params);
-            process.waitFor();
             input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-
-            /*
-            // read errors
-            errorString = "";
-            while ((line = error.readLine()) != null) {
-                errorString += line;
-            }
-            */
             
-            // No idea why program outputs everything in error stream instead of normal stream
-            return error;
+            if(runOnBackground) {
+                Thread backGroundThread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            while((line = error.readLine()) != null) {
+                                System.out.println(line);
+                            }
+                            process.waitFor();
+                        } catch (InterruptedException ex) {
+                            Logger.log("ffprobeReader", "BackGround thread interrupted", ex);
+                        } catch (IOException ex) {
+                            Logger.log("ffprobeReader", "BackGround thread input read error", ex);
+                        }
+                    }
+                });
+                backGroundThread.setDaemon(true);
+                backGroundThread.start();
+            } else {
+                process.waitFor();
+            }
+            
+            // ffprobe outputs video info to error stream and frame data to input stream
+            if(runOnBackground)
+                return input;
+            else
+                return error;
             
             
         } catch (IOException ex) {
             Logger.log(threadName, "error reading file: " + project.videoFileAbsolutePath, ex);
-        } catch (InterruptedException ex) {
-            Logger.log(threadName, "reading interrupted");
         } catch (Exception ex) {
             Logger.log(ex);
         } finally {
@@ -112,6 +138,19 @@ public class ffprobeReader extends RootThread {
         }
         
         return null;
+    }
+    
+    private void flushTicks() {
+        ticksOutLock.lock();
+        ticksOut += ticks;
+        ticks = 0;
+        ticksOutLock.unlock();
+    }
+    
+    @Override
+    public void stop() {
+        Statics.jobList.removeJob.add(this);
+        super.stop();
     }
     
 }

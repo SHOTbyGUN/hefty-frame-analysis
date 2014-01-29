@@ -8,6 +8,8 @@ import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import javafx.application.Platform;
+import javafx.scene.control.TextArea;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
@@ -47,6 +49,8 @@ public class Logger extends TickThread {
             } while(textOut != null);
             
             out.flush();
+            
+            Platform.runLater(updateLogGui);
         } catch (Exception ex) {
             log(ex);
         } finally {
@@ -116,5 +120,18 @@ public class Logger extends TickThread {
             }
         }
     }
+    
+    private final Runnable updateLogGui = new Runnable() {
+
+        String logLine;
+        
+        @Override
+        public void run() {
+            TextArea textArea = Statics.mainGuiController.getLogTextArea();
+            while((logLine = logToGUI.poll()) != null) {
+                textArea.appendText(logLine + "\n");
+            }
+        }
+    };
     
 }
