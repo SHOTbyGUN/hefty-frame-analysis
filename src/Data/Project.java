@@ -25,11 +25,13 @@ public class Project {
     
     // data
     public List frames;
-    public String videoInfo;
+    public String videoInfoRaw;
     public long totalFrames;
+    public int durationInSeconds;
+    public int frameRate;
     
     // data reader
-    ffprobeReader reader;
+    private final ffprobeReader reader;
     
     // class specific variables
     
@@ -42,7 +44,7 @@ public class Project {
         
         // Init variables
         // TODO frames list should be initialized as about correct size
-        frames = new ArrayList();
+        createFrameList(1024);
         
         // After init
         readVideoInfo();
@@ -62,7 +64,7 @@ public class Project {
         if(input == null)
             throw new Exception("Unable to read video info");
         
-        videoInfo = "";
+        videoInfoRaw = "";
         String line;
         String text = "";
         boolean startReading = false;
@@ -76,29 +78,30 @@ public class Project {
         } else {
             while ((line = input.readLine()) != null) {
                 if(!startReading) {
-                    line = line.trim();
                     if(line.startsWith("Input #"))
                         startReading = true;
                     
                 } else {
-                    videoInfo += line;
-                    /*
-                    TODO detect duration in seconds * fps * 2
-                    = Expected frames total
-                    = Progressbar possbile
+                    videoInfoRaw += line + "\n";
+                    
+                    // Parse video info here
+                    
                     if(line.startsWith("  Duration:")) {
-                        line = line.trim();
-                        int startPoint = line.indexOf(": ");
-                        int endPoint = line.indexOf(", ");
-                        System.out.println(line);
-                        System.out.println(line.substring(startPoint, endPoint));
+                        durationInSeconds = ParseInfo.getDurationInSeconds(line);
                     }
-                    */
+                    
+                    if(line.startsWith("    Stream #")) {
+                        int fps = ParseInfo.getFrameRate(line);
+                        if(fps > 0)
+                            frameRate = fps;
+                    }
                 }
             }
             
-            System.out.println("Video Info:");
-            System.out.println(videoInfo);
+            if(Statics.dumpData) {
+                System.out.println("Video Info Raw:");
+                System.out.println(videoInfoRaw);
+            }
         }
     }
     

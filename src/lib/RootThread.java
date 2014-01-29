@@ -24,12 +24,6 @@ public abstract class RootThread implements Runnable {
         thread.setName(threadName);
     }
     
-    public final String getClassName(RootThread myClass) {
-        return myClass.getClass().getSimpleName();
-    }
-    
- 
-    
     public void start() {
         keepRunning = true;
         thread.start();

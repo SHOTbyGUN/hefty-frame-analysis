@@ -87,8 +87,8 @@ public class ffprobeReader extends RootThread {
             Statics.jobList.removeJob.add(this);
             Logger.log(project.projectName, "Frames imported");
             if(Statics.debug) {
-                System.out.println("project.totalFrames" + project.totalFrames);
-                System.out.println("project.frames.size()" + project.frames.size());
+                System.out.println("project.totalFrames " + project.totalFrames);
+                System.out.println("project.frames.size() " + project.frames.size());
             }
         } catch (IOException ex) {
             Logger.log(threadName, "error reading file: " + project.videoFileAbsolutePath, ex);
@@ -111,8 +111,10 @@ public class ffprobeReader extends RootThread {
                     public void run() {
                         try {
                             while((line = error.readLine()) != null) {
-                                if(Statics.debug)
+                                if(Statics.dumpData) {
+                                    System.out.println("Background thread output, SHOULD BE NOTHING HERE!");
                                     System.out.println(line);
+                                }
                             }
                             process.waitFor();
                         } catch (InterruptedException ex) {
