@@ -34,7 +34,8 @@ public class JobList extends TickThread {
     @Override
     public void runTick() {
         try {
-            Thread.sleep(100);
+            // maximum of 20 frames per second
+            Thread.sleep(50);
             
             // remove jobs
             while((item = removeJob.poll()) != null) {
