@@ -4,6 +4,7 @@
 
 package hefty;
 
+import Data.BarGraph;
 import Data.Project;
 import java.io.File;
 import javafx.event.Event;
@@ -64,6 +65,9 @@ public class HeftyApplication {
             });
             // TODO add option to import part of the file
             project.startReadingFrames();
+            
+            BarGraph graph = new BarGraph(project);
+            tab.setContent(graph.getBarChartNode());
             
         } catch (Exception ex) {
             Logger.log(HeftyApplication.class.getSimpleName(), "Error importing file", ex);

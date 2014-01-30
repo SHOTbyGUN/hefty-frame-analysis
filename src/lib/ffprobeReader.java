@@ -32,6 +32,9 @@ public class ffprobeReader extends RootThread {
     // Locking
     ReentrantLock readLock = new ReentrantLock();
     
+    // Background Thread
+    Thread backGroundThread;
+    
     public ffprobeReader(Project project) throws Exception {
         super(ffprobeReader.class.getSimpleName());
         
@@ -62,13 +65,16 @@ public class ffprobeReader extends RootThread {
                     // Look for new frame opening
                     if(line.startsWith("[FRAME")) {
                         frame = new Frame();
-                        project.frames.add(frame);
                     }
                 } else {
                     // we have frame, do we want to close it?
                     if(line.startsWith("[/FRAME")) {
-                        frame = null;
+                        // We add frames to the project only when it is closed
+                        // So we can happily read project.frames while we are reading input
+                        // No "null pointer exceptions" =)
+                        project.frames.add(frame);
                         project.totalFrames++;
+                        frame = null;
                     } else {
                         // ok we did not close the frame
                         // we must have new data to the current one
@@ -77,16 +83,12 @@ public class ffprobeReader extends RootThread {
                         frame.frameData.put(splitString[0], splitString[1]);
                     }
                 }
-                
-                
-                //addTick();
             }
             
             // if we got here we succeeded
-            //flushTicks();
             Statics.jobList.removeJob.add(this);
-            Logger.log(project.projectName, "Frames imported");
-            if(Statics.debug) {
+            Logger.log(project.projectName, project.frames.size() + " frames imported");
+            if(Statics.dumpData) {
                 System.out.println("project.totalFrames " + project.totalFrames);
                 System.out.println("project.frames.size() " + project.frames.size());
             }
@@ -106,11 +108,11 @@ public class ffprobeReader extends RootThread {
             error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             
             if(runOnBackground) {
-                Thread backGroundThread = new Thread(new Runnable() {
+                backGroundThread = new Thread(new Runnable() {
                     @Override
                     public void run() {
                         try {
-                            while((line = error.readLine()) != null) {
+                            while(keepRunning && (line = error.readLine()) != null) {
                                 if(Statics.dumpData) {
                                     System.out.println("Background thread output, SHOULD BE NOTHING HERE!");
                                     System.out.println(line);
@@ -125,6 +127,7 @@ public class ffprobeReader extends RootThread {
                     }
                 });
                 backGroundThread.setDaemon(true);
+                backGroundThread.setName("ffProbeReaderBG");
                 backGroundThread.start();
             } else {
                 process.waitFor();
@@ -151,8 +154,9 @@ public class ffprobeReader extends RootThread {
     
     @Override
     public void stop() {
-        Statics.jobList.removeJob.add(this);
         super.stop();
+        Statics.jobList.removeJob.add(this);
+        process.destroy();
     }
     
 }

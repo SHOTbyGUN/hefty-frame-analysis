@@ -5,7 +5,6 @@
 package hefty;
 
 import java.awt.Desktop;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -21,11 +20,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
 import lib.Logger;
 import lib.Statics;
-import sun.awt.DisplayChangedListener;
 
 /**
  * FXML Controller class
@@ -45,8 +41,6 @@ public class MainGUIController implements Initializable {
     private TextArea logTextArea;
     @FXML
     private VBox progressVBox;
-    @FXML
-    private ListView jobListView;
 
     /**
      * Initializes the controller class.
@@ -87,8 +81,8 @@ public class MainGUIController implements Initializable {
         return rootTabPane;
     }
     
-    public ListView getJobListView() {
-        return jobListView;
+    public VBox getprogressVBox() {
+        return progressVBox;
     }
     
     public TextArea getLogTextArea() {

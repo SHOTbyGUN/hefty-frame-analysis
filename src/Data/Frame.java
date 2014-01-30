@@ -12,6 +12,6 @@ import java.util.HashMap;
  */
 public class Frame {
     
-    public HashMap frameData = new HashMap();
+    public HashMap<String, String> frameData = new HashMap();
     
 }

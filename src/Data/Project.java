@@ -17,16 +17,16 @@ import lib.ffprobeReader;
  *
  * @author SHOT(by)GUN
  */
-public class Project {
+public final class Project {
     
     // Video file path
     public final String videoFileAbsolutePath;
     public final String projectName;
     
     // data
-    public List frames;
+    public List<Frame> frames;
     public String videoInfoRaw;
-    public long totalFrames;
+    public int totalFrames;
     public int durationInSeconds;
     public int frameRate;
     
