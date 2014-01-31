@@ -32,9 +32,6 @@ public class HeftyFrameAnalysis extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         
-        // Start the application by initializing The main class of the application
-        Statics.application = new HeftyApplication();
-        
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainGUI.fxml"));
         fxmlLoader.load();
         Statics.mainGuiController = fxmlLoader.getController();
@@ -86,6 +83,9 @@ public class HeftyFrameAnalysis extends Application {
                 event.consume();
             }
         });
+        
+        // Start the application by initializing The main class of the application
+        Statics.application = new HeftyApplication();
 
         Logger.log(Statics.applicationName, "Application started");
         

@@ -50,7 +50,7 @@ public class ffprobeReader extends RootThread {
     @Override
     public void run() {
         
-        Statics.jobList.jobList.add(this);
+        Statics.jobList.addJob.add(this);
         
         Frame frame = null;
         String[] splitString;

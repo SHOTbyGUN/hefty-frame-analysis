@@ -19,6 +19,7 @@ import lib.FileOperations;
 import lib.JobList;
 import lib.Logger;
 import lib.Statics;
+import lib.UpdateThread;
 
 /**
  *
@@ -35,7 +36,9 @@ public class HeftyApplication {
             Statics.logger.start();
             
             Statics.jobList = new JobList();
-            Statics.jobList.start();
+            
+            Statics.updateThread = new UpdateThread();
+            Statics.updateThread.start();
             
             
         } catch (Exception ex) {
@@ -52,7 +55,7 @@ public class HeftyApplication {
     public boolean shutdown() {
         Logger.log(Statics.applicationName, "shutdown requested");
         Statics.logger.stop();
-        Statics.jobList.stop();
+        Statics.updateThread.stop();
         return true;
     }
     

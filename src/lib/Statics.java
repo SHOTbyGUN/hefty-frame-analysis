@@ -32,6 +32,7 @@ public class Statics {
     public static MainGUIController mainGuiController;
     public static HeftyApplication application;
     public static JobList jobList;
+    public static UpdateThread updateThread;
     public static Logger logger;
     
     // Runtime variables
