@@ -42,11 +42,9 @@ public class Logger extends TickThread {
             // we still flush the last remaining log data
             // before exiting
             
-            do {
-                textOut = logToFilePool.poll();
-                if(textOut != null)
-                    out.println(textOut);
-            } while(textOut != null);
+            while((textOut = logToFilePool.poll()) != null) {
+                out.println(textOut);
+            }
             
             out.flush();
             

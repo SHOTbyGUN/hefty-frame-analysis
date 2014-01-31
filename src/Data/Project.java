@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javafx.scene.control.Tab;
 import lib.Logger;
 import lib.Statics;
 import lib.ffprobeReader;
@@ -26,6 +27,7 @@ public final class Project {
     // data
     public List<Frame> frames;
     public String videoInfoRaw;
+    public int expectedFrames;
     public int totalFrames;
     public int durationInSeconds;
     public int frameRate;
@@ -33,21 +35,40 @@ public final class Project {
     // data reader
     private final ffprobeReader reader;
     
+    // Graphics
+    public final BarGraph barGraph;
+    
     // class specific variables
+    private final Tab tab;
     
     
-    
-    public Project(String videoFileAbsolutePath) throws Exception {
-        this.videoFileAbsolutePath = videoFileAbsolutePath;
-        projectName = new File(videoFileAbsolutePath).getName();
+    public Project(File videoFile, Tab tab) throws Exception {
+        // Process parameters
+        this.videoFileAbsolutePath = videoFile.getAbsolutePath();
+        this.projectName = videoFile.getName();
+        this.tab = tab;
+        
+        // Create ffprobe data reader
         reader = new ffprobeReader(this);
         
-        // Init variables
-        // TODO frames list should be initialized as about correct size
-        createFrameList(1024);
-        
-        // After init
+        // Read videoInfo
         readVideoInfo();
+        
+        // Init variables
+        
+        // Estimated value ... as 80% extra are audio frames
+        expectedFrames = (int) (durationInSeconds * frameRate * 1.8d);
+        
+        // Create Frame List as estimated size
+        // So we don't need to resize the ArrayList while reading frames
+        createFrameList(expectedFrames);
+        
+        // Create graphics
+        barGraph = new BarGraph(this);
+    }
+    
+    public Tab getTab() {
+        return tab;
     }
     
     public void createFrameList(int size) {
@@ -103,6 +124,8 @@ public final class Project {
                 System.out.println(videoInfoRaw);
             }
         }
+        
+        input.close();
     }
     
     public void closeProject() {

@@ -25,6 +25,7 @@ public class Statics {
     public static boolean dumpData = false;
     
     public static final String logFilePath = FileOperations.getWorkingDirectory() + File.separator + "HeftyFrameAnalysis.log";
+    public static final String dataDumpFilePath = FileOperations.getWorkingDirectory() + File.separator + "dataDump.txt";
     
     
     // Public classes

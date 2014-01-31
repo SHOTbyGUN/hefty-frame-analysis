@@ -86,6 +86,7 @@ public class ffprobeReader extends RootThread {
             }
             
             // if we got here we succeeded
+            data.close();
             Statics.jobList.removeJob.add(this);
             Logger.log(project.projectName, project.frames.size() + " frames imported");
             if(Statics.dumpData) {

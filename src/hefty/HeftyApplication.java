@@ -7,9 +7,14 @@ package hefty;
 import Data.BarGraph;
 import Data.Project;
 import java.io.File;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import lib.DataDumper;
 import lib.FileOperations;
 import lib.JobList;
 import lib.Logger;
@@ -34,9 +39,12 @@ public class HeftyApplication {
             
             
         } catch (Exception ex) {
-            String errorMessage = "Error initializing GodObject, nothing should be working";
+            String errorMessage = "Error initializing " 
+                    + HeftyApplication.class.getSimpleName() 
+                    + ", nothing should be working";
             System.out.println(errorMessage);
             Statics.mainGuiController.setLogText(errorMessage);
+            ex.printStackTrace();
         }
         
     }
@@ -51,9 +59,10 @@ public class HeftyApplication {
     public void createNewProject(File importedFile) {
         try {
             Logger.log(Statics.applicationName, "Importing file " + importedFile.getAbsolutePath());
-            final Project project = new Project(importedFile.getAbsolutePath());
             
             Tab tab = new Tab(importedFile.getName());
+            final Project project = new Project(importedFile, tab);
+            
             Statics.mainGuiController.getRootTabPane().getTabs().add(tab);
             tab.setUserData(project);
             tab.getTabPane().getSelectionModel().select(tab);
@@ -66,10 +75,45 @@ public class HeftyApplication {
             // TODO add option to import part of the file
             project.startReadingFrames();
             
-            BarGraph graph = new BarGraph(project, tab);
-            
         } catch (Exception ex) {
             Logger.log(HeftyApplication.class.getSimpleName(), "Error importing file", ex);
+        }
+    }
+    
+    public void dumpFrameData() {
+        try {
+            
+            ConcurrentLinkedQueue dump = new ConcurrentLinkedQueue();
+            DataDumper dumper = new DataDumper(dump);
+            dumper.start();
+
+            Logger.log(HeftyApplication.class.getSimpleName(), "dumpFrameData start");
+            
+            dump.add("++++ Dump Frame Data ++++ dump start");
+            TabPane tabPane = Statics.mainGuiController.getRootTabPane();
+            Project project;
+            int i;
+            for(Tab tab : tabPane.getTabs()) {
+                // For each tab
+                if(tab.getUserData() != null) {
+                    // For each tab containing a project
+                    project = (Project) tab.getUserData();
+
+                    dump.add("++++++++ Project name: " + project.projectName);
+
+                    for(i = 0; i < project.frames.size(); i++) {
+                        dump.add("++++ Frame number: " + i);
+                        for(Entry<String, String> row : project.frames.get(i).frameData.entrySet()) {
+                            dump.add(row.getKey() + " = " + row.getValue());
+                        }
+                    }
+                }
+            }
+            dump.add("++++ Dump Frame Data ++++ dump end");
+            
+            Logger.log(HeftyApplication.class.getSimpleName(), "dumpFrameData end");
+        } catch (Exception ex) {
+            Logger.log(HeftyApplication.class.getSimpleName(), "dumpFrameData error", ex);
         }
     }
 }

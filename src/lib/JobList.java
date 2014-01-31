@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import javafx.application.Platform;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -46,7 +45,7 @@ public class JobList extends TickThread {
             Platform.runLater(printJobs);
             
         } catch (Exception ex) {
-            Logger.log(threadName, "error at runTick()", ex);
+            Logger.log(JobList.class.getSimpleName(), "error at runTick()", ex);
         }
     }
     
@@ -55,27 +54,36 @@ public class JobList extends TickThread {
         @Override
         public void run() {
             
+            try {
+
+                // TODO don't clear + remake... instead do updates on current objects
+                VBox vbox = Statics.mainGuiController.getprogressVBox();
+                vbox.getChildren().clear();
+
+                StackPane stack;
+                ProgressBar progressBar;
+                Text text;
+
+                for(ffprobeReader job : jobList) {
+                    // Create progress bar and text
+                    progressBar = new ProgressBar(calculateProgress(job));
+                    progressBar.setMaxWidth(Double.MAX_VALUE);
+                    progressBar.setPrefHeight(20);
+                    text = new Text(job.project.projectName + " " + job.project.totalFrames + " frames");
+                    text.setFont(Font.font(null, 16));
+
+                    // handle containers
+                    stack = new StackPane();
+                    stack.getChildren().add(progressBar);
+                    stack.getChildren().add(text);
+                    vbox.getChildren().add(stack);
+                    
+                    // TODO move this method somewhere else
+                    job.project.barGraph.updateSlider();
+                }
             
-            VBox vbox = Statics.mainGuiController.getprogressVBox();
-            vbox.getChildren().clear();
-            
-            StackPane stack;
-            ProgressBar progressBar;
-            Text text;
-            
-            for(ffprobeReader job : jobList) {
-                // Create progress bar and text
-                progressBar = new ProgressBar(calculateProgress(job));
-                progressBar.setMaxWidth(Double.MAX_VALUE);
-                progressBar.setPrefHeight(20);
-                text = new Text(job.project.projectName + " " + job.project.totalFrames + " frames");
-                text.setFont(Font.font(null, 16));
-                
-                // handle containers
-                stack = new StackPane();
-                stack.getChildren().add(progressBar);
-                stack.getChildren().add(text);
-                vbox.getChildren().add(stack);
+            } catch (Exception ex) {
+                Logger.log(JobList.class.getSimpleName(), "Platform.runLater.printJobs error", ex);
             }
         }
     };
@@ -83,13 +91,10 @@ public class JobList extends TickThread {
     
     private double calculateProgress(ffprobeReader job) {
         
-        double expectedFrames = job.project.durationInSeconds
-                * job.project.frameRate
-                * 1.8d; // Estimated value ... as 80% extra are audio frames
-        
         // Return current frame count what we are importing
         // Divide it by expected frames = progress
-        return job.project.totalFrames / expectedFrames;
+        return 1.0d * job.project.totalFrames / job.project.expectedFrames;
+        // 1.0d * = make sure we are using double to get accurate percentage
     }
     
     @Override
