@@ -43,6 +43,8 @@ public class MainGUIController implements Initializable {
 
     /**
      * Initializes the controller class.
+     * @param url
+     * @param rb
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -87,5 +89,4 @@ public class MainGUIController implements Initializable {
     public TextArea getLogTextArea() {
         return logTextArea;
     }
-    
 }

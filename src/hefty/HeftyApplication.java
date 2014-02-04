@@ -4,11 +4,9 @@
 
 package hefty;
 
-import Data.BarGraph;
 import Data.Project;
 import java.io.File;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -27,7 +25,7 @@ import lib.UpdateThread;
  */
 
 // How about someone renames this class to something more ... appropriate?
-public class HeftyApplication {
+public final class HeftyApplication {
     
     public HeftyApplication() {
         

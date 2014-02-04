@@ -29,6 +29,7 @@ public final class Project {
     public String videoInfoRaw;
     public int expectedFrames;
     public int totalFrames;
+    public int videoFrames;
     public int durationInSeconds;
     public int frameRate;
     

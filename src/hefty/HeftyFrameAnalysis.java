@@ -39,6 +39,8 @@ public class HeftyFrameAnalysis extends Application {
         Parent root = fxmlLoader.getRoot();
         Scene scene = new Scene(root);
         
+        stage.setTitle(Statics.applicationName + " " + Statics.version);
+        
         stage.setScene(scene);
         stage.show();
         

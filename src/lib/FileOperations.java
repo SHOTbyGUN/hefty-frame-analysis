@@ -7,8 +7,13 @@ package lib;
 import hefty.HeftyApplication;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Properties;
 import org.apache.commons.lang3.SystemUtils;
 
 /**
@@ -63,25 +68,4 @@ public class FileOperations {
                 throw new Exception("Unable to create directory to '" + path + "'");
         }
     }
-    
-    public static String[] readDictionary(File dictionary) throws Exception {
-        ArrayList list = new ArrayList();
-        BufferedReader br = new BufferedReader(new FileReader(dictionary));
-        String line;
-        while ((line = br.readLine()) != null) {
-           list.add(line);
-        }
-        br.close();
-        
-        // Make array
-        String[] output = new String[list.size()];
-        list.toArray(output);
-        
-        return output;
-    }
-    
-    public static String buildCommandString(String executable, String threadKeyFilePath) {
-        return "\"" +executable + "\" enc -d -p -aes-256-cbc -a -in \"" + threadKeyFilePath + "\" -pass \"pass:";
-    }
-    
 }

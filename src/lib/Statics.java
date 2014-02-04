@@ -6,6 +6,7 @@ package lib;
 
 import hefty.HeftyApplication;
 import hefty.MainGUIController;
+import hefty.Settings;
 import java.io.File;
 
 /**
@@ -34,7 +35,8 @@ public class Statics {
     public static JobList jobList;
     public static UpdateThread updateThread;
     public static Logger logger;
+    public static Settings settings;
     
     // Runtime variables
-    public static String ffprobeExecutablePath = "D:\\Ohjelmat\\ffprobe\\bin\\ffprobe.exe";
+    //public static String ffprobeExecutablePath = "D:\\Ohjelmat\\ffprobe\\bin\\ffprobe.exe";
 }

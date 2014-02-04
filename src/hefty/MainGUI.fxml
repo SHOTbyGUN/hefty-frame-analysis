@@ -3,47 +3,82 @@
 <?import java.lang.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane fx:id="rootBorderPane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hefty.MainGUIController">
-<bottom><VBox fx:id="progressVBox">
-</VBox>
-</bottom>
-<center><TabPane fx:id="rootTabPane" tabClosingPolicy="ALL_TABS" xmlns:fx="http://javafx.com/fxml">
-  <tabs>
-    <Tab closable="false" text="Welcome">
-<content><BorderPane>
-<top><VBox alignment="CENTER" prefHeight="100.0">
-<children><Text strokeType="OUTSIDE" strokeWidth="0.0" text="Hefty Frame Analysis">
-<font>
-<Font size="48.0" />
-</font></Text><Label fx:id="versionLabel" text="Version" />
-</children></VBox>
-</top>
-<bottom><VBox alignment="CENTER" prefHeight="100.0">
-<children><Label text="Created by Teemu Kauhanen" /><Hyperlink onMouseClicked="#twitterLinkClicked" text="twitter.com/SHOTbyGUN" />
-</children></VBox>
-</bottom>
-<center><Text fx:id="dragDropText" strokeType="OUTSIDE" strokeWidth="0.0" text="Drag and drop files here">
-<font>
-<Font size="36.0" />
-</font></Text>
-</center></BorderPane>
-</content>
-    </Tab>
-    <Tab closable="false" text="Log">
-<content><VBox spacing="10.0">
-<children><TextArea fx:id="logTextArea" editable="false" promptText="nothing here yet" VBox.vgrow="ALWAYS">
-<VBox.margin>
-<Insets />
-</VBox.margin></TextArea><Button mnemonicParsing="false" onAction="#clearLogAction" text="Clear log" />
-</children>
-<padding>
-<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-</padding></VBox>
-</content>
-    </Tab>
-  </tabs>
-</TabPane>
-</center></BorderPane>
+<BorderPane fx:id="rootBorderPane" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="hefty.MainGUIController">
+  <bottom>
+    <VBox fx:id="progressVBox" />
+  </bottom>
+  <center>
+    <TabPane fx:id="rootTabPane" tabClosingPolicy="ALL_TABS">
+      <tabs>
+        <Tab closable="false" text="Welcome">
+          <content>
+            <BorderPane>
+              <bottom>
+                <VBox alignment="CENTER" prefHeight="100.0">
+                  <children>
+                    <Label text="Created by Teemu Kauhanen" />
+                    <Hyperlink onMouseClicked="#twitterLinkClicked" text="twitter.com/SHOTbyGUN" />
+                  </children>
+                </VBox>
+              </bottom>
+              <center>
+                <Text fx:id="dragDropText" strokeType="OUTSIDE" strokeWidth="0.0" text="Drag and drop files here">
+                  <font>
+                    <Font size="36.0" />
+                  </font>
+                </Text>
+              </center>
+              <top>
+                <VBox alignment="CENTER" prefHeight="100.0">
+                  <children>
+                    <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Hefty Frame Analysis">
+                      <effect>
+                        <DropShadow>
+                          <input>
+                            <Lighting diffuseConstant="1.5238095238095237" specularConstant="0.7936507936507937" specularExponent="19.047619047619047" surfaceScale="6.42063492063492">
+                              <bumpInput>
+                                <Shadow />
+                              </bumpInput>
+                              <light>
+                                <javafx.scene.effect.Light.Distant color="RED" />
+                              </light>
+                            </Lighting>
+                          </input>
+                        </DropShadow>
+                      </effect>
+                      <font>
+                        <Font size="48.0" />
+                      </font>
+                    </Text>
+                    <Label fx:id="versionLabel" text="Version" />
+                  </children>
+                </VBox>
+              </top>
+            </BorderPane>
+          </content>
+        </Tab>
+        <Tab closable="false" text="Log">
+          <content>
+            <VBox spacing="10.0">
+              <children>
+                <TextArea fx:id="logTextArea" editable="false" promptText="nothing here yet" VBox.vgrow="ALWAYS">
+                  <VBox.margin>
+                    <Insets />
+                  </VBox.margin>
+                </TextArea>
+                <Button mnemonicParsing="false" onAction="#clearLogAction" text="Clear log" />
+              </children>
+              <padding>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+              </padding>
+            </VBox>
+          </content>
+        </Tab>
+      </tabs>
+    </TabPane>
+  </center>
+</BorderPane>

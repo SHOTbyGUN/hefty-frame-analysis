@@ -4,18 +4,23 @@
 
 package Data;
 
-import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.chart.XYChart;
+import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TitledPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -34,29 +39,43 @@ public class BarGraph {
     public static final int OPTIMAL_BAR_SPACE = 10;
     public static final int BAR_WIDTH = 5;
     public static final int MARGIN = 50;
+    public static final int DETAILS_MAX_WIDTH = 250;
     
     private final Project project;
-    private final VBox vBox = new VBox();
-    private final HBox hBox = new HBox();
+    
+    // UI Components
     private final Slider slider = new Slider(0, 0, 0);
-    private final Slider fineTune = new Slider(-5, 5, 0);
+    private final Slider fineTuneSlider = new Slider(-10, 10, 0);
     private boolean fineTuneIsActive = false;
+    
+    private final TextArea fileInfoTextArea;
+    private final GridPane frameInfoPane;
+    
+    private final CheckBox ignoreAudio;
+    
+    
     private int lastHowManyBars = 0;
     
-    // private global local variables lol np
     private int i;
-    private HashMap<String, String> frameData;
     
     // Layout
+    private final HBox root = new HBox();
+    private final Accordion rightSideDetails = new Accordion();
+    private final VBox leftSideVBox = new VBox();
+    private final HBox controlsHBox = new HBox();
     private final StackPane stackPane = new StackPane();
     private final Pane bottomLayer = new Pane();
     private final Pane topLayer = new Pane();
+    private final TitledPane fileInfo, frameInfo;
     
     // Data change checks
     private boolean firstDrawDone = false;
     private final AtomicBoolean drawNeeded = new AtomicBoolean(false);
     private double lastWidth = 0;
     private double lastHeight = 0;
+    
+    // Listeners
+    
     
     
     
@@ -75,21 +94,39 @@ public class BarGraph {
             }
         });
         
-        fineTune.setOnMousePressed(new EventHandler<MouseEvent>() {
+        fineTuneSlider.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent t) {
                 fineTuneIsActive = true;
             }
         });
         
-        fineTune.setOnMouseReleased(new EventHandler<MouseEvent>() {
+        fineTuneSlider.setOnMouseReleased(new EventHandler<MouseEvent>() {
 
             @Override
             public void handle(MouseEvent t) {
                 fineTuneIsActive = false;
-                fineTune.setValue(0);
+                fineTuneSlider.setValue(0);
             }
         });
+        
+        // File info, Frame info will be filled with listener
+        
+        fileInfoTextArea = new TextArea(project.videoInfoRaw);
+        fileInfoTextArea.setMaxWidth(DETAILS_MAX_WIDTH);
+        fileInfoTextArea.setWrapText(true);
+        
+        fileInfo = new TitledPane("File", fileInfoTextArea);
+        
+        frameInfo = new TitledPane();
+        frameInfo.setText("Frame");
+        frameInfoPane = new GridPane();
+        frameInfoPane.setMaxWidth(DETAILS_MAX_WIDTH);
+        
+        frameInfo.setContent(frameInfoPane);
+        
+        rightSideDetails.getPanes().addAll(fileInfo, frameInfo);
+        rightSideDetails.setExpandedPane(fileInfo);
         
         
         // Build other components
@@ -106,31 +143,31 @@ public class BarGraph {
                 });
             }
         });
-        hBox.getChildren().add(refreshButton);
+        controlsHBox.getChildren().add(refreshButton);
         
-        CheckBox ignoreAudio = new CheckBox("ignore audio frames");
+        ignoreAudio = new CheckBox("ignore audio frames");
         ignoreAudio.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent t) {
                 drawNeeded();
             }
         });
-        hBox.getChildren().add(ignoreAudio);
+        controlsHBox.getChildren().add(ignoreAudio);
         
         
         // Put it all together
         stackPane.getChildren().add(bottomLayer);
         stackPane.getChildren().add(topLayer);
-        vBox.getChildren().add(stackPane);
-        vBox.getChildren().add(fineTune);
-        vBox.getChildren().add(slider);
-        vBox.getChildren().add(hBox);
+        leftSideVBox.getChildren().add(stackPane);
+        leftSideVBox.getChildren().add(fineTuneSlider);
+        leftSideVBox.getChildren().add(slider);
+        leftSideVBox.getChildren().add(controlsHBox);
         VBox.setVgrow(stackPane, Priority.ALWAYS);
-        project.getTab().setContent(vBox);
-    }
-    
-    public void addRow(XYChart.Series realSeries) {
-        System.out.println("row data: " + Integer.toString(i) + ", " + frameData.get("pkt_size"));
+        
+        root.getChildren().add(leftSideVBox);
+        root.getChildren().add(rightSideDetails);
+        HBox.setHgrow(leftSideVBox, Priority.ALWAYS);
+        project.getTab().setContent(root);
     }
     
     public Double getWidth() {
@@ -200,14 +237,14 @@ public class BarGraph {
             int framesFrom = getFramesFrom();
 
             // Bar height = packet size / max packet size
-            int maxPacketSize = getMaxPacketSize(framesFrom, howManyBars);
+            double maxPacketSize = getMaxPacketSize(framesFrom, howManyBars);
 
-            // Packet size is double so we don't lose accuracy
-            double packetSize;
+            int packetSize;
 
             Line line;
 
-            Frame frame;
+            int frameID = 0;
+            
 
             double x;
             // All bars start from the 0 point
@@ -216,7 +253,13 @@ public class BarGraph {
             for(i = 0; i < howManyBars; i++) {
 
                 // get Frame
-                frame = project.frames.get(framesFrom + i);
+                final Frame frame = project.frames.get(framesFrom + frameID++);
+                
+                if(ignoreAudio.isSelected() && frame.getFrameType() == FrameType.Audio) {
+                    i--;
+                    continue;
+                }
+                    
 
                 // get packet size for this frame
                 packetSize = frame.getPacketSize();
@@ -230,6 +273,24 @@ public class BarGraph {
                 // Style the line
                 line.setStroke(frame.getFrameColor());
                 line.setStrokeWidth(BAR_WIDTH);
+                
+                // Tooltip to indicate the packet size - Meh tooltips suck REPLACE IT
+                Tooltip t = new Tooltip(Integer.toString((int)packetSize));
+                Tooltip.install(line, t);
+                
+                line.setUserData(frame);
+                
+                line.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent t) {
+                        frameInfoPane.getChildren().clear();
+                        int i = 0;
+                        for(Entry<String,String> row : frame.frameData.entrySet()) {
+                            frameInfoPane.addRow(i++, new Label(row.getKey()), new Label(row.getValue()));
+                        }
+                        rightSideDetails.setExpandedPane(frameInfo);
+                    }
+                });
 
                 // add line to the Layer
                 topLayer.getChildren().add(line);
@@ -238,7 +299,7 @@ public class BarGraph {
             // Draw start and end frame numbers
             Text textFramesFrom = new Text(0, MARGIN / 2, "frame " + framesFrom);
             Text textFramesTo = new Text("frame " + (framesFrom + howManyBars - 1));
-            textFramesTo.setX(getWidth() - textFramesTo.getBoundsInLocal().getWidth());
+            textFramesTo.setX(getWidth() + MARGIN / 2 - textFramesTo.getBoundsInLocal().getWidth());
             textFramesTo.setY(MARGIN / 2);
 
             topLayer.getChildren().addAll(textFramesFrom, textFramesTo);
@@ -249,12 +310,21 @@ public class BarGraph {
         }
     }
     
-    private int getMaxPacketSize(int framesFrom, int howManyFrames) {
+    private double getMaxPacketSize(int framesFrom, int howManyFrames) {
         int maxPacketSize = 0;
         int tester;
+        int frameID = 0;
+        Frame frame;
         for(i = 0; i < howManyFrames; i++) {
             // get packet size for a frame
-            tester = project.frames.get(framesFrom + i).getPacketSize();
+            frame = project.frames.get(framesFrom + frameID++);
+            
+            if(ignoreAudio.isSelected() && frame.getFrameType() == FrameType.Audio) {
+                i--;
+                continue;
+            }
+            
+            tester = frame.getPacketSize();
             
             // Did we get bigger size?
             if(tester > maxPacketSize)
@@ -271,23 +341,32 @@ public class BarGraph {
     
     public void updateSlider() {
         
-        if(project.totalFrames - lastHowManyBars > 0) {
-            slider.setMax(project.totalFrames - lastHowManyBars);
+        if(calculateTotalFrames() - lastHowManyBars > 0) {
+            slider.setMax(calculateTotalFrames() - lastHowManyBars);
         }
         
         if(!firstDrawDone) {
-            if(project.totalFrames > 500) {
+            if(calculateTotalFrames() > 500) {
                 drawNeeded();
                 firstDrawDone = true;
             }
         } else {
             if(fineTuneIsActive)
-                slider.setValue(slider.getValue() + fineTune.getValue());
+                slider.setValue(slider.getValue() + fineTuneSlider.getValue());
         }
     }
     
     public void drawNeeded() {
         drawNeeded.compareAndSet(false, true);
+    }
+    
+    public int calculateTotalFrames() {
+        
+        if(ignoreAudio.isSelected())
+            return project.videoFrames;
+        else
+            return project.totalFrames;
+            
     }
     
 }

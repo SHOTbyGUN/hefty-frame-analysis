@@ -8,6 +8,7 @@
 package lib;
 
 import Data.Frame;
+import Data.FrameType;
 import Data.Project;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -50,6 +51,8 @@ public class ffprobeReader extends RootThread {
     @Override
     public void run() {
         
+        
+        
         Statics.jobList.addJob.add(this);
         
         Frame frame = null;
@@ -74,6 +77,11 @@ public class ffprobeReader extends RootThread {
                         // No "null pointer exceptions" =)
                         project.frames.add(frame);
                         project.totalFrames++;
+                        
+                        // if "ignore Audio frames" checkbox is enabled, we can see the number of total video frames easily
+                        if(frame.getFrameType() != FrameType.Audio)
+                            project.videoFrames++;
+                        
                         frame = null;
                     } else {
                         // ok we did not close the frame
@@ -104,7 +112,7 @@ public class ffprobeReader extends RootThread {
             readLock.lock();
             // Example command line: "D:\Ohjelmat\ffprobe\bin\ffprobe.exe" -show_frames "D:\Videot\Stream\filu (02).mp4"
             // TODO a way to start ffprobe in low priority
-            process = Runtime.getRuntime().exec(Statics.ffprobeExecutablePath + " " + params);
+            process = Runtime.getRuntime().exec(Statics.settings.getSettings().getProperty("ffprobePath") + " " + params);
             input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             
