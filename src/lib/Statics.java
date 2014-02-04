@@ -8,6 +8,7 @@ import hefty.HeftyApplication;
 import hefty.MainGUIController;
 import hefty.Settings;
 import java.io.File;
+import javafx.stage.Stage;
 
 /**
  *
@@ -21,7 +22,7 @@ public class Statics {
     // Global Init Constants
     public static final String applicationName = "Hefty Frame Analysis";
     public static final String applicationShortName = applicationName.replace(" ", "");
-    public static final String version = "v0.1";
+    public static final String version = "v0.2";
     public static boolean debug = true;
     public static boolean dumpData = false;
     
@@ -38,5 +39,7 @@ public class Statics {
     public static Settings settings;
     
     // Runtime variables
-    //public static String ffprobeExecutablePath = "D:\\Ohjelmat\\ffprobe\\bin\\ffprobe.exe";
+    public static Stage stage;
+    
+    public static String defaultDragAndDropText = "Drag and drop files here";
 }

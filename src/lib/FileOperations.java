@@ -8,6 +8,7 @@ import hefty.HeftyApplication;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.InputStream;
@@ -32,10 +33,10 @@ public class FileOperations {
         }
     }
     
-    public static File getFile(String path) throws Exception {
+    public static File getFile(String path) throws FileNotFoundException {
         File file = new File(path);
         if(!file.exists())
-            throw new Exception("Path: '" + path + "' not found");
+            throw new FileNotFoundException("Path: '" + path + "' not found");
         return file;
     }
     

@@ -38,6 +38,7 @@ public final class HeftyApplication {
             Statics.updateThread = new UpdateThread();
             Statics.updateThread.start();
             
+            Statics.settings = new Settings();
             
         } catch (Exception ex) {
             String errorMessage = "Error initializing " 

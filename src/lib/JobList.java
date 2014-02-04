@@ -27,6 +27,7 @@ public class JobList {
     private ProgressBar progressBar;
     private Text text;
     
+    // This runnable is run by UpdateThread... using Platform.runLater()
     public Runnable printJobs = new Runnable() {
         
         @Override

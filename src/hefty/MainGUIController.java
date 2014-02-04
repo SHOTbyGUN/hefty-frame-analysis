@@ -17,6 +17,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import lib.Logger;
@@ -40,6 +41,8 @@ public class MainGUIController implements Initializable {
     private TextArea logTextArea;
     @FXML
     private VBox progressVBox;
+    @FXML
+    private GridPane settingsGridPane;
 
     /**
      * Initializes the controller class.
@@ -88,5 +91,13 @@ public class MainGUIController implements Initializable {
     
     public TextArea getLogTextArea() {
         return logTextArea;
+    }
+    
+    public GridPane getSettingsGridPane() {
+        return settingsGridPane;
+    }
+    
+    public Text getDragAndDropText() {
+        return dragDropText;
     }
 }

@@ -32,6 +32,8 @@ public class HeftyFrameAnalysis extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         
+        Statics.stage = stage;
+        
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainGUI.fxml"));
         fxmlLoader.load();
         Statics.mainGuiController = fxmlLoader.getController();
@@ -63,6 +65,7 @@ public class HeftyFrameAnalysis extends Application {
                 Dragboard db = event.getDragboard();
                 if (db.hasFiles()) {
                     event.acceptTransferModes(TransferMode.COPY);
+                    Statics.mainGuiController.getDragAndDropText().setText("Yes please.");
                 } else {
                     event.consume();
                 }
@@ -81,6 +84,7 @@ public class HeftyFrameAnalysis extends Application {
                         Statics.application.createNewProject(file);
                     }
                 }
+                Statics.mainGuiController.getDragAndDropText().setText(Statics.defaultDragAndDropText);
                 event.setDropCompleted(success);
                 event.consume();
             }
