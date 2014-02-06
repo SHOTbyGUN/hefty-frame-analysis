@@ -46,8 +46,8 @@ public class BarGraph {
     private final Slider fineTuneSlider = new Slider(-10, 10, 0);
     private boolean fineTuneIsActive = false;
     
-    private final TextArea fileInfoTextArea;
-    private final GridPane frameInfoPane;
+    //private final TextArea fileInfoTextArea;
+    //private final GridPane frameInfoPane;
     
     private final CheckBox ignoreAudio;
     
@@ -58,13 +58,13 @@ public class BarGraph {
     
     // Layout
     private final HBox root = new HBox();
-    private final Accordion rightSideDetails = new Accordion();
+    //private final Accordion rightSideDetails = new Accordion();
     private final VBox leftSideVBox = new VBox();
     private final HBox controlsHBox = new HBox();
     private final StackPane stackPane = new StackPane();
     private final Pane bottomLayer = new Pane();
     private final Pane topLayer = new Pane();
-    private final TitledPane fileInfo, frameInfo;
+    //private final TitledPane fileInfo, frameInfo;
     
     // Data change checks
     private boolean firstDrawDone = false;
@@ -109,7 +109,7 @@ public class BarGraph {
         });
         
         // File info, Frame info will be filled with listener
-        
+        /*
         fileInfoTextArea = new TextArea(project.videoInfoRaw);
         fileInfoTextArea.setMaxWidth(DETAILS_MAX_WIDTH);
         fileInfoTextArea.setWrapText(true);
@@ -125,6 +125,7 @@ public class BarGraph {
         
         rightSideDetails.getPanes().addAll(fileInfo, frameInfo);
         rightSideDetails.setExpandedPane(fileInfo);
+        */
         
         
         // Build other components
@@ -163,7 +164,7 @@ public class BarGraph {
         VBox.setVgrow(stackPane, Priority.ALWAYS);
         
         root.getChildren().add(leftSideVBox);
-        root.getChildren().add(rightSideDetails);
+        //root.getChildren().add(rightSideDetails);
         HBox.setHgrow(leftSideVBox, Priority.ALWAYS);
         project.getTab().setContent(root);
     }

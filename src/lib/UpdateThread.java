@@ -18,9 +18,15 @@ public class UpdateThread extends RootThread {
     
     
     private boolean stopRequested = false;
-    
     private ReentrantLock lock = new ReentrantLock();
     
+    private static final int maxConcurrentImportJobs = 2;
+    
+    private static final int tickrate = 50;
+    private static final int tickrateSleep = 1000 / 50;
+    
+    int importFileTick = tickrate;
+    int i;
     
     public UpdateThread() {
         super(UpdateThread.class.getSimpleName());
@@ -31,7 +37,7 @@ public class UpdateThread extends RootThread {
         while(keepRunning) {
             try {
                 
-                Thread.sleep(20);
+                Thread.sleep(tickrateSleep);
                 
                 if(stopRequested) {
                     for(Tab tab : Statics.mainGuiController.getRootTabPane().getTabs()) {
@@ -89,9 +95,15 @@ public class UpdateThread extends RootThread {
                 }
                 
                 // Add new project
-                File file;
-                if((file = Statics.importFileQueue.poll()) != null)
-                    Statics.application.createNewProject(file);
+                
+                if(i++ > importFileTick) {
+                    i = 0;
+                    if(Statics.mainGuiController.getprogressVBox().getChildren().size() < maxConcurrentImportJobs) {
+                        File file;
+                        if((file = Statics.importFileQueue.poll()) != null)
+                            Statics.application.createNewProject(file);
+                    }
+                }
 
                 Statics.jobList.printJobs.run();
                 

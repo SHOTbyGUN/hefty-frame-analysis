@@ -61,7 +61,10 @@ public final class HeftyApplication {
             
             Statics.mainGuiController.getRootTabPane().getTabs().add(tab);
             tab.setUserData(project);
-            tab.getTabPane().getSelectionModel().select(tab);
+            
+            if(tab.getTabPane().getSelectionModel().getSelectedItem().getUserData() == null)
+                tab.getTabPane().getSelectionModel().select(tab);
+            
             // TODO add option to import part of the file
             project.startReadingFrames();
             
