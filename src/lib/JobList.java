@@ -56,6 +56,11 @@ public class JobList {
                     stack = (StackPane) node;
                     job = (ffprobeReader) stack.getUserData();
                     
+                    if(!job.keepRunning) {
+                        vbox.getChildren().remove(node);
+                        continue;
+                    }
+                    
                     // Update progress bar
                     progressBar = (ProgressBar) stack.getChildren().get(0);
                     progressBar.setProgress(calculateProgress(job));

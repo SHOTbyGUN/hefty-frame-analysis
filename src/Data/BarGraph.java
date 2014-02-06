@@ -4,7 +4,6 @@
 
 package Data;
 
-import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -14,7 +13,6 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TitledPane;
@@ -41,7 +39,7 @@ public class BarGraph {
     public static final int MARGIN = 50;
     public static final int DETAILS_MAX_WIDTH = 250;
     
-    private final Project project;
+    private Project project;
     
     // UI Components
     private final Slider slider = new Slider(0, 0, 0);
@@ -79,7 +77,7 @@ public class BarGraph {
     
     
     
-    public BarGraph(final Project project) {
+    public BarGraph(Project project) {
         
         this.project = project;
         
@@ -253,12 +251,7 @@ public class BarGraph {
             for(i = 0; i < howManyBars; i++) {
 
                 // get Frame
-                final Frame frame = project.frames.get(framesFrom + frameID++);
-                
-                if(ignoreAudio.isSelected() && frame.getFrameType() == FrameType.Audio) {
-                    i--;
-                    continue;
-                }
+                Frame frame = project.frames.get(framesFrom + frameID++);
                     
 
                 // get packet size for this frame
@@ -283,12 +276,14 @@ public class BarGraph {
                 line.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent t) {
+                        /*
                         frameInfoPane.getChildren().clear();
                         int i = 0;
                         for(Entry<String,String> row : frame.frameData.entrySet()) {
                             frameInfoPane.addRow(i++, new Label(row.getKey()), new Label(row.getValue()));
                         }
                         rightSideDetails.setExpandedPane(frameInfo);
+                        */
                     }
                 });
 
@@ -319,11 +314,6 @@ public class BarGraph {
             // get packet size for a frame
             frame = project.frames.get(framesFrom + frameID++);
             
-            if(ignoreAudio.isSelected() && frame.getFrameType() == FrameType.Audio) {
-                i--;
-                continue;
-            }
-            
             tester = frame.getPacketSize();
             
             // Did we get bigger size?
@@ -341,12 +331,12 @@ public class BarGraph {
     
     public void updateSlider() {
         
-        if(calculateTotalFrames() - lastHowManyBars > 0) {
-            slider.setMax(calculateTotalFrames() - lastHowManyBars);
+        if(project.totalFrames - lastHowManyBars > 0) {
+            slider.setMax(project.totalFrames - lastHowManyBars);
         }
         
         if(!firstDrawDone) {
-            if(calculateTotalFrames() > 500) {
+            if(project.totalFrames > 500) {
                 drawNeeded();
                 firstDrawDone = true;
             }
@@ -360,13 +350,8 @@ public class BarGraph {
         drawNeeded.compareAndSet(false, true);
     }
     
-    public int calculateTotalFrames() {
-        
-        if(ignoreAudio.isSelected())
-            return project.videoFrames;
-        else
-            return project.totalFrames;
-            
+    public void close() {
+        project = null;
     }
     
 }

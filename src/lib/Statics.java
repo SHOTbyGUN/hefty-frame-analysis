@@ -8,6 +8,7 @@ import hefty.HeftyApplication;
 import hefty.MainGUIController;
 import hefty.Settings;
 import java.io.File;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import javafx.stage.Stage;
 
 /**
@@ -40,6 +41,6 @@ public class Statics {
     
     // Runtime variables
     public static Stage stage;
-    
     public static String defaultDragAndDropText = "Drag and drop files here";
+    public static ConcurrentLinkedQueue<File> importFileQueue = new ConcurrentLinkedQueue<>();
 }

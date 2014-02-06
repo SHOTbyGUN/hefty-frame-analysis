@@ -4,7 +4,6 @@
 
 package Data;
 
-import java.util.HashMap;
 import javafx.scene.paint.Color;
 import lib.Logger;
 
@@ -21,38 +20,31 @@ public class Frame {
     public static Color audioColor= Color.BLACK;
     public static Color unknownColor = Color.GRAY;
     
-    public HashMap<String, String> frameData = new HashMap();
+    private FrameType frameType;
+    private int frameSize;
     
-    public int getPacketSize() {
-        try {
-            return Integer.parseInt(frameData.get("pkt_size"));
-        } catch (Exception ex) {
-            Logger.log(Frame.class.getSimpleName(), "unable to get Packet Size", ex);
-            return 0;
-        }
+    
+    public Frame(FrameType frameType, int frameSize) {
+        this.frameType = frameType;
+        this.frameSize = frameSize;
     }
     
-    public FrameType getFrameType() {
+    
+    public int getPacketSize() {
+        return frameSize;
+    }
+    
+    public static FrameType getFrameType(String frameTypeString) {
         
         try {
-            if(frameData.get("media_type").equals("audio")) {
-                return FrameType.Audio;
+            if(frameTypeString.equals("B"))
+                return FrameType.B;
+            else if (frameTypeString.equals("P"))
+                return FrameType.P;
+            else if (frameTypeString.equals("I")) {
+                return FrameType.I;
             } else {
-
-                String frameTypeString = frameData.get("pict_type");
-
-                if(frameTypeString.equals("B"))
-                    return FrameType.B;
-                else if (frameTypeString.equals("P"))
-                    return FrameType.P;
-                else if (frameTypeString.equals("I")) {
-                    if(frameData.get("key_frame").equals("0"))
-                        return FrameType.I;
-                    else
-                        return FrameType.IDR;
-                } else {
-                    return FrameType.UNKNOWN;
-                }
+                return FrameType.UNKNOWN;
             }
         } catch (Exception ex) {
             Logger.log(Frame.class.getSimpleName(), "error getFrameType", ex);
@@ -62,9 +54,7 @@ public class Frame {
     
     public Color getFrameColor() {
         
-        final FrameType myEnum = getFrameType();
-        
-        switch(myEnum) {
+        switch(frameType) {
             case B:
                 return bColor;
             case P:
@@ -73,8 +63,6 @@ public class Frame {
                 return iColor;
             case IDR:
                 return idrColor;
-            case Audio:
-                return audioColor;
             default:
                 return unknownColor;
         }

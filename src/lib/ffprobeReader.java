@@ -8,7 +8,6 @@
 package lib;
 
 import Data.Frame;
-import Data.FrameType;
 import Data.Project;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -51,51 +50,36 @@ public class ffprobeReader extends RootThread {
     @Override
     public void run() {
         
-        
-        
         Statics.jobList.addJob.add(this);
         
-        Frame frame = null;
-        String[] splitString;
+        Frame frame;
+        String[] splitRow, frameType, frameSize;
         
-        BufferedReader data = execute("-show_frames \"" + project.videoFileAbsolutePath + '"', true);
+        String rowSplitter = ";";
+        String kvSplitter = "=";
+        
+        // -v quiet -show_frames -of compact=s=;:p=0 -show_entries frame=pkt_size,pict_type:frame_tags -select_streams v:0 "D:\Videot\Stream\filu (05).mp4"
+        BufferedReader data = execute("-v quiet -show_frames -of compact=s=;:p=0 -show_entries frame=pkt_size,pict_type:frame_tags -select_streams v:0 \"" 
+                + project.videoFileAbsolutePath + '"', true);
+        
+        // Expected output per line: pkt_size=407|pict_type=B
+        
         try {
             while (keepRunning && (line = data.readLine()) != null) {
                 // close the thread (aborted) OR do something with each line
                 
-                if(frame == null) {
-                    // We dont have frame open
-                    // Look for new frame opening
-                    if(line.startsWith("[FRAME")) {
-                        frame = new Frame();
-                    }
-                } else {
-                    // we have frame, do we want to close it?
-                    if(line.startsWith("[/FRAME")) {
-                        // We add frames to the project only when it is closed
-                        // So we can happily read project.frames while we are reading input
-                        // No "null pointer exceptions" =)
-                        project.frames.add(frame);
-                        project.totalFrames++;
-                        
-                        // if "ignore Audio frames" checkbox is enabled, we can see the number of total video frames easily
-                        if(frame.getFrameType() != FrameType.Audio)
-                            project.videoFrames++;
-                        
-                        frame = null;
-                    } else {
-                        // ok we did not close the frame
-                        // we must have new data to the current one
-                        
-                        splitString = line.split("=");
-                        frame.frameData.put(splitString[0], splitString[1]);
-                    }
-                }
+                
+                splitRow = line.split(rowSplitter);
+                frameSize = splitRow[0].split(kvSplitter);
+                frameType = splitRow[1].split(kvSplitter);
+                
+                frame = new Frame(Frame.getFrameType(frameType[1]), Integer.parseInt(frameSize[1]));
+                project.frames.add(frame);
+                project.totalFrames++;
             }
             
             // if we got here we succeeded
             data.close();
-            Statics.jobList.removeJob.add(this);
             Logger.log(project.projectName, project.frames.size() + " frames imported");
             if(Statics.dumpData) {
                 System.out.println("project.totalFrames " + project.totalFrames);
@@ -103,6 +87,8 @@ public class ffprobeReader extends RootThread {
             }
         } catch (IOException ex) {
             Logger.log(threadName, "error reading file: " + project.videoFileAbsolutePath, ex);
+        } finally {
+            Statics.jobList.removeJob.add(this);
         }
     }
 
@@ -111,7 +97,12 @@ public class ffprobeReader extends RootThread {
             // we should not need be able to read video info and frame data at the same time.... but this prevents it anyway
             readLock.lock();
             // Example command line: "D:\Ohjelmat\ffprobe\bin\ffprobe.exe" -show_frames "D:\Videot\Stream\filu (02).mp4"
+            // Example command line version 2:
+            // -v quiet -show_frames -of compact=p=0 -show_entries frame=pkt_size,pict_type:frame_tags -select_streams v:0 "D:\Videot\Stream\filu (05).mp4"
             // TODO a way to start ffprobe in low priority
+            
+            // -select_streams v:0
+            
             process = Runtime.getRuntime().exec(Statics.settings.getSettings().getProperty("ffprobePath") + " " + params);
             input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
@@ -164,8 +155,12 @@ public class ffprobeReader extends RootThread {
     @Override
     public void stop() {
         super.stop();
-        Statics.jobList.removeJob.add(this);
+        //Statics.jobList.removeJob.add(this);
         process.destroy();
+    }
+    
+    public void close() {
+        stop();
     }
     
 }

@@ -9,5 +9,5 @@ package Data;
  * @author SHOT(by)GUN
  */
 public enum FrameType {
-    B, P, I, IDR, Audio, UNKNOWN
+    B, P, I, IDR, UNKNOWN
 }

@@ -79,9 +79,8 @@ public class HeftyFrameAnalysis extends Application {
                 boolean success = false;
                 if (db.hasFiles()) {
                     success = true;
-                    String filePath = null;
                     for (File file:db.getFiles()) {
-                        Statics.application.createNewProject(file);
+                        Statics.importFileQueue.add(file);
                     }
                 }
                 Statics.mainGuiController.getDragAndDropText().setText(Statics.defaultDragAndDropText);

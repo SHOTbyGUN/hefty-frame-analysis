@@ -9,6 +9,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.control.Tab;
 import lib.Logger;
 import lib.Statics;
@@ -29,18 +31,17 @@ public final class Project {
     public String videoInfoRaw;
     public int expectedFrames;
     public int totalFrames;
-    public int videoFrames;
     public int durationInSeconds;
     public int frameRate;
     
     // data reader
-    private final ffprobeReader reader;
+    private ffprobeReader reader;
     
     // Graphics
-    public final BarGraph barGraph;
+    public BarGraph barGraph;
     
     // class specific variables
-    private final Tab tab;
+    private Tab tab;
     
     
     public Project(File videoFile, Tab tab) throws Exception {
@@ -48,6 +49,13 @@ public final class Project {
         this.videoFileAbsolutePath = videoFile.getAbsolutePath();
         this.projectName = videoFile.getName();
         this.tab = tab;
+        
+        tab.setOnClosed(new EventHandler<Event>() {
+            @Override
+            public void handle(Event t) {
+                closeProject();
+            }
+        });
         
         // Create ffprobe data reader
         reader = new ffprobeReader(this);
@@ -130,6 +138,15 @@ public final class Project {
     }
     
     public void closeProject() {
-        reader.stop();
+        tab.setOnClosed(null);
+        tab.setUserData(null);
+        tab = null;
+        
+        reader.close();
+        reader = null;
+        
+        barGraph.close();
+        barGraph = null;
+        
     }
 }

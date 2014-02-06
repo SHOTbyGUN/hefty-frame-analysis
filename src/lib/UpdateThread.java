@@ -5,6 +5,7 @@
 package lib;
 
 import Data.Project;
+import java.io.File;
 import java.util.concurrent.locks.ReentrantLock;
 import javafx.application.Platform;
 import javafx.scene.control.Tab;
@@ -46,7 +47,6 @@ public class UpdateThread extends RootThread {
                     
                     
                     // Update GUI
-                    
                     Platform.runLater(updateGUI);
                     
                 }
@@ -78,6 +78,8 @@ public class UpdateThread extends RootThread {
             }
             
             try {
+                
+                // Update graphics
                 for(Tab tab : Statics.mainGuiController.getRootTabPane().getTabs()) {
                     if(tab.getUserData() != null) {
                         project = (Project) tab.getUserData();
@@ -85,6 +87,11 @@ public class UpdateThread extends RootThread {
                         project.barGraph.draw();
                     }
                 }
+                
+                // Add new project
+                File file;
+                if((file = Statics.importFileQueue.poll()) != null)
+                    Statics.application.createNewProject(file);
 
                 Statics.jobList.printJobs.run();
                 
