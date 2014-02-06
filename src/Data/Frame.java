@@ -5,6 +5,10 @@
 package Data;
 
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Paint;
+import javafx.scene.paint.Stop;
 import lib.Logger;
 
 /**
@@ -13,12 +17,21 @@ import lib.Logger;
  */
 public class Frame {
     
-    public static Color bColor = Color.GREEN;
-    public static Color pColor = Color.BLUE;
-    public static Color iColor = Color.ORANGE;
-    public static Color idrColor = Color.RED;
-    public static Color audioColor= Color.BLACK;
-    public static Color unknownColor = Color.GRAY;
+    public static Paint bColor = getLinearPaint(Color.GREEN);
+    public static Paint pColor = getLinearPaint(Color.BLUE);
+    public static Paint iColor = getLinearPaint(Color.RED);
+    //public static Paint idrColor = getLinearPaint(Color.RED);
+    public static Paint unknownColor = getLinearPaint(Color.GRAY);
+    
+    public static Paint getLinearPaint(Color inputColor) {
+        Stop[] stops;
+        LinearGradient linear;
+        
+        
+        stops = new Stop[] {new Stop(0, inputColor), new Stop(1, Color.BLACK)};
+        linear = new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE, stops);
+        return linear;
+    }
     
     private FrameType frameType;
     private int frameSize;
@@ -52,7 +65,7 @@ public class Frame {
         }
     }
     
-    public Color getFrameColor() {
+    public Paint getFrameColor() {
         
         switch(frameType) {
             case B:
@@ -61,8 +74,6 @@ public class Frame {
                 return pColor;
             case I:
                 return iColor;
-            case IDR:
-                return idrColor;
             default:
                 return unknownColor;
         }

@@ -25,6 +25,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import lib.Logger;
 
@@ -240,7 +241,9 @@ public class BarGraph {
 
             int packetSize;
 
-            Line line;
+            //Line line;
+            Rectangle rect;
+            double barHeight;
 
             int frameID = 0;
             
@@ -262,19 +265,23 @@ public class BarGraph {
                 x = MARGIN / 2 + (barSpace * i);
 
                 // Draw a bar, bottom to up
-                line = new Line(x, yStart, x, getHeight() - (packetSize / maxPacketSize) * (getHeight() - MARGIN));
+                //line = new Line(x, yStart, x, getHeight() - (packetSize / maxPacketSize) * (getHeight() - MARGIN));
+                //rect = new Rectangle(x, yStart, BAR_WIDTH, - ((packetSize / maxPacketSize) * (getHeight() - MARGIN)));
+                barHeight = (packetSize / maxPacketSize) * (getHeight() - MARGIN);
+                rect = new Rectangle(x, getHeight() - barHeight, BAR_WIDTH, barHeight);
+                rect.setFill(frame.getFrameColor());
 
                 // Style the line
-                line.setStroke(frame.getFrameColor());
-                line.setStrokeWidth(BAR_WIDTH);
+                //line.setStroke(frame.getFrameColor());
+                //line.setStrokeWidth(BAR_WIDTH);
                 
                 // Tooltip to indicate the packet size - Meh tooltips suck REPLACE IT
                 Tooltip t = new Tooltip(Integer.toString((int)packetSize));
-                Tooltip.install(line, t);
+                Tooltip.install(rect, t);
                 
-                line.setUserData(frame);
+                rect.setUserData(frame);
                 
-                line.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                rect.setOnMouseClicked(new EventHandler<MouseEvent>() {
                     @Override
                     public void handle(MouseEvent t) {
                         /*
@@ -289,7 +296,7 @@ public class BarGraph {
                 });
 
                 // add line to the Layer
-                topLayer.getChildren().add(line);
+                topLayer.getChildren().add(rect);
             }
 
             // Draw start and end frame numbers
