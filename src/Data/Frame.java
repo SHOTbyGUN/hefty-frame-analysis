@@ -17,11 +17,11 @@ import lib.Logger;
  */
 public class Frame {
     
-    public static Paint bColor = getLinearPaint(Color.GREEN);
-    public static Paint pColor = getLinearPaint(Color.BLUE);
-    public static Paint iColor = getLinearPaint(Color.RED);
+    public static Paint bColor = Color.GREEN;
+    public static Paint pColor = Color.BLUE;
+    public static Paint iColor = Color.RED;
     //public static Paint idrColor = getLinearPaint(Color.RED);
-    public static Paint unknownColor = getLinearPaint(Color.GRAY);
+    public static Paint unknownColor = Color.GRAY;
     
     public static Paint getLinearPaint(Color inputColor) {
         Stop[] stops;
@@ -33,8 +33,8 @@ public class Frame {
         return linear;
     }
     
-    private FrameType frameType;
-    private int frameSize;
+    private final FrameType frameType;
+    private final int frameSize;
     
     
     public Frame(FrameType frameType, int frameSize) {

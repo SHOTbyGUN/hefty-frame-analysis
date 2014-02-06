@@ -4,30 +4,31 @@
 
 package Data;
 
+import hefty.Settings;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Slider;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.effect.Light;
+import javafx.scene.effect.Lighting;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.text.Text;
 import lib.Logger;
+import lib.Statics;
 
 /**
  *
@@ -36,7 +37,7 @@ import lib.Logger;
 public class BarGraph {
     
     public static final int OPTIMAL_BAR_SPACE = 10;
-    public static final int BAR_WIDTH = 5;
+    public static final int BAR_WIDTH = 8;
     public static final int MARGIN = 50;
     public static final int DETAILS_MAX_WIDTH = 250;
     
@@ -73,7 +74,15 @@ public class BarGraph {
     private double lastWidth = 0;
     private double lastHeight = 0;
     
-    // Listeners
+    public static final Light.Distant light = new Light.Distant();
+    public static final Lighting lineLighting = new Lighting(light);
+    static {
+        light.setColor(Color.WHITE);
+        light.setAzimuth(45);
+        light.setElevation(130);
+        lineLighting.setSurfaceScale(5);
+    }
+            
     
     
     
@@ -241,12 +250,11 @@ public class BarGraph {
 
             int packetSize;
 
-            //Line line;
-            Rectangle rect;
-            double barHeight;
+            Line line;
 
             int frameID = 0;
             
+            boolean lowGraphics = Boolean.parseBoolean(Statics.settings.getSettings().getProperty(Settings.lowGraphicsMode));
 
             double x;
             // All bars start from the 0 point
@@ -265,38 +273,23 @@ public class BarGraph {
                 x = MARGIN / 2 + (barSpace * i);
 
                 // Draw a bar, bottom to up
-                //line = new Line(x, yStart, x, getHeight() - (packetSize / maxPacketSize) * (getHeight() - MARGIN));
-                //rect = new Rectangle(x, yStart, BAR_WIDTH, - ((packetSize / maxPacketSize) * (getHeight() - MARGIN)));
-                barHeight = (packetSize / maxPacketSize) * (getHeight() - MARGIN);
-                rect = new Rectangle(x, getHeight() - barHeight, BAR_WIDTH, barHeight);
-                rect.setFill(frame.getFrameColor());
+                line = new Line(x, yStart, x, getHeight() - (packetSize / maxPacketSize) * (getHeight() - MARGIN));
 
                 // Style the line
-                //line.setStroke(frame.getFrameColor());
-                //line.setStrokeWidth(BAR_WIDTH);
+                line.setStroke(frame.getFrameColor());
+                line.setStrokeWidth(BAR_WIDTH);
+                line.setStrokeLineCap(StrokeLineCap.BUTT);
+                if(!lowGraphics)
+                    line.setEffect(lineLighting);
                 
                 // Tooltip to indicate the packet size - Meh tooltips suck REPLACE IT
                 Tooltip t = new Tooltip(Integer.toString((int)packetSize));
-                Tooltip.install(rect, t);
+                Tooltip.install(line, t);
                 
-                rect.setUserData(frame);
-                
-                rect.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                    @Override
-                    public void handle(MouseEvent t) {
-                        /*
-                        frameInfoPane.getChildren().clear();
-                        int i = 0;
-                        for(Entry<String,String> row : frame.frameData.entrySet()) {
-                            frameInfoPane.addRow(i++, new Label(row.getKey()), new Label(row.getValue()));
-                        }
-                        rightSideDetails.setExpandedPane(frameInfo);
-                        */
-                    }
-                });
+                line.setUserData(frame);
 
                 // add line to the Layer
-                topLayer.getChildren().add(rect);
+                topLayer.getChildren().add(line);
             }
 
             // Draw start and end frame numbers

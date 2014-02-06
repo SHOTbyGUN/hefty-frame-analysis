@@ -21,12 +21,8 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.RowConstraints;
 import javafx.stage.FileChooser;
-import lib.FileOperations;
 import static lib.FileOperations.getFile;
 import static lib.FileOperations.getOrCreateFile;
 import static lib.FileOperations.getWorkingDirectory;
@@ -41,7 +37,7 @@ public class Settings {
     
     // All available property items
     public static final String ffprobePath = "ffprobePath";
-    public static final String readAllData = "readAllData";
+    public static final String lowGraphicsMode = "lowGraphicsMode";
     
     
     private final Properties defaultSettings = new Properties();
@@ -49,14 +45,14 @@ public class Settings {
     
     // GUI components
     TextField ffprobePathTextField;
-    CheckBox importAllDataCheckBox;
+    CheckBox lowGraphicsModeCheckBox;
     FileChooser fileChooser;
     
     public Settings() {
         
         // Set default values
         defaultSettings.setProperty(ffprobePath, "");
-        defaultSettings.setProperty(readAllData, "false");
+        defaultSettings.setProperty(lowGraphicsMode, "false");
         
         // Create current settings
         currentSettings = new Properties(defaultSettings);
@@ -82,11 +78,11 @@ public class Settings {
         ffprobeDownloadLink.setOnMouseClicked(ffProbeHyperLinkClickedEvent);
         grid.addRow(gridID++, ffprobeLabel, ffprobePathTextField, browseButton, ffprobeDownloadLink);
         
-        // Import all data
-        Label importAllDataLabel = new Label("Increases memory usage!");
-        importAllDataCheckBox = new CheckBox("Read all data from ffprobe");
-        importAllDataCheckBox.setSelected(Boolean.parseBoolean(currentSettings.getProperty(readAllData)));
-        grid.addRow(gridID++, importAllDataLabel, importAllDataCheckBox);
+        // Bar graphics
+        Label lowGraphicsModeLabel = new Label("Quality of bars");
+        lowGraphicsModeCheckBox = new CheckBox("Low graphics mode");
+        lowGraphicsModeCheckBox.setSelected(Boolean.parseBoolean(currentSettings.getProperty(lowGraphicsMode)));
+        grid.addRow(gridID++, lowGraphicsModeLabel, lowGraphicsModeCheckBox);
         
         // Save button
         //Label saveLabel = new Label("Settings are not applied until you click Apply and Save");
@@ -108,7 +104,7 @@ public class Settings {
         
         // load values from GUI and put em into currentProperties
         currentSettings.setProperty(ffprobePath, ffprobePathTextField.getText());
-        currentSettings.setProperty(readAllData, Boolean.toString(importAllDataCheckBox.isSelected()));
+        currentSettings.setProperty(lowGraphicsMode, Boolean.toString(lowGraphicsModeCheckBox.isSelected()));
         
         // if ffprobe path is atleast SOMETHING change welcome message
         if(ffprobePathTextField.getText().length() > 1 &&  Statics.mainGuiController.getDragAndDropText().getText() != Statics.defaultDragAndDropText) {

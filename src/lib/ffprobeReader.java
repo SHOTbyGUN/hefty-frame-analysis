@@ -13,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.concurrent.locks.ReentrantLock;
+import org.apache.commons.lang3.SystemUtils;
 
 /**
  *
@@ -103,7 +104,16 @@ public class ffprobeReader extends RootThread {
             
             // -select_streams v:0
             
-            process = Runtime.getRuntime().exec(Statics.settings.getSettings().getProperty("ffprobePath") + " " + params);
+            if(SystemUtils.IS_OS_WINDOWS)
+                process = Runtime.getRuntime().exec("cmd /c start /B /low " + Statics.settings.getSettings().getProperty("ffprobePath") + " " + params);
+            else if(SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_UNIX)
+                process = Runtime.getRuntime().exec("/usr/bin/nice -n 15 " + Statics.settings.getSettings().getProperty("ffprobePath") + " " + params);
+            else if(SystemUtils.IS_OS_MAC)
+                process = Runtime.getRuntime().exec("nice -n 15 " + Statics.settings.getSettings().getProperty("ffprobePath") + " " + params);
+            else
+                process = Runtime.getRuntime().exec(Statics.settings.getSettings().getProperty("ffprobePath") + " " + params);
+            
+            
             input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
             
