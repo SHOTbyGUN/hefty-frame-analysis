@@ -5,6 +5,7 @@
 package Data;
 
 import hefty.Settings;
+import java.text.DecimalFormat;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -49,12 +50,7 @@ public class BarGraph {
     private final Slider slider = new Slider(0, 0, 0);
     private final Slider fineTuneSlider = new Slider(-10, 10, 0);
     private boolean fineTuneIsActive = false;
-    
-    //private final TextArea fileInfoTextArea;
-    //private final GridPane frameInfoPane;
-    
-    private final CheckBox ignoreAudio;
-    
+    private Text selectedBarSizeText;
     
     private int lastHowManyBars = 0;
     
@@ -62,13 +58,10 @@ public class BarGraph {
     
     // Layout
     private final HBox root = new HBox();
-    //private final Accordion rightSideDetails = new Accordion();
     private final VBox leftSideVBox = new VBox();
-    private final HBox controlsHBox = new HBox();
     private final StackPane stackPane = new StackPane();
     private final Pane bottomLayer = new Pane();
     private final Pane topLayer = new Pane();
-    //private final TitledPane fileInfo, frameInfo;
     
     // Data change checks
     private boolean firstDrawDone = false;
@@ -78,11 +71,13 @@ public class BarGraph {
     
     public static final Light.Distant light = new Light.Distant();
     public static final Lighting lineLighting = new Lighting(light);
+    private static final DecimalFormat df = new DecimalFormat();
     static {
         light.setColor(Color.WHITE);
         light.setAzimuth(45);
         light.setElevation(130);
         lineLighting.setSurfaceScale(5);
+        df.setMaximumFractionDigits(2);
     }
             
     
@@ -120,59 +115,13 @@ public class BarGraph {
             }
         });
         
-        // File info, Frame info will be filled with listener
-        /*
-        fileInfoTextArea = new TextArea(project.videoInfoRaw);
-        fileInfoTextArea.setMaxWidth(DETAILS_MAX_WIDTH);
-        fileInfoTextArea.setWrapText(true);
-        
-        fileInfo = new TitledPane("File", fileInfoTextArea);
-        
-        frameInfo = new TitledPane();
-        frameInfo.setText("Frame");
-        frameInfoPane = new GridPane();
-        frameInfoPane.setMaxWidth(DETAILS_MAX_WIDTH);
-        
-        frameInfo.setContent(frameInfoPane);
-        
-        rightSideDetails.getPanes().addAll(fileInfo, frameInfo);
-        rightSideDetails.setExpandedPane(fileInfo);
-        */
-        
-        
-        // Build other components
-        
-        Button refreshButton = new Button("Refresh");
-        refreshButton.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent t) {
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        drawNeeded();
-                    }
-                });
-            }
-        });
-        controlsHBox.getChildren().add(refreshButton);
-        
-        ignoreAudio = new CheckBox("ignore audio frames");
-        ignoreAudio.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent t) {
-                drawNeeded();
-            }
-        });
-        controlsHBox.getChildren().add(ignoreAudio);
-        
-        
         // Put it all together
         stackPane.getChildren().add(bottomLayer);
         stackPane.getChildren().add(topLayer);
         leftSideVBox.getChildren().add(stackPane);
         leftSideVBox.getChildren().add(fineTuneSlider);
         leftSideVBox.getChildren().add(slider);
-        leftSideVBox.getChildren().add(controlsHBox);
+        //leftSideVBox.getChildren().add(controlsHBox);
         VBox.setVgrow(stackPane, Priority.ALWAYS);
         
         root.getChildren().add(leftSideVBox);
@@ -182,12 +131,10 @@ public class BarGraph {
     }
     
     public Double getWidth() {
-        //return stackPane.getBoundsInLocal().getWidth() - MARGIN;
         return stackPane.getLayoutBounds().getWidth() - MARGIN;
     }
     
     public Double getHeight() {
-        //return stackPane.getBoundsInLocal().getHeight() - MARGIN;
         return stackPane.getLayoutBounds().getHeight() - MARGIN;
     }
     
@@ -195,6 +142,7 @@ public class BarGraph {
         
         // check if we need to draw bottom layer
         //if(lastWidth != getWidth() || lastHeight != getHeight()) {
+        // Example above seemed to fluctuate between 1 pixel = terrible shaky picture!
         if(Math.abs(lastWidth - getWidth()) > 1 || Math.abs(lastHeight - getHeight()) > 1) {
             drawBottomLayer();
             lastWidth = getWidth();
@@ -304,11 +252,13 @@ public class BarGraph {
             double x;
             // All bars start from the 0 point
             double yStart = getHeight();
+            
+            
 
             for(i = 0; i < howManyBars; i++) {
 
                 // get Frame
-                Frame frame = project.frames.get(framesFrom + frameID++);
+                final Frame frame = project.frames.get(framesFrom + frameID++);
                     
 
                 // get packet size for this frame
@@ -327,9 +277,16 @@ public class BarGraph {
                 if(!lowGraphics)
                     line.setEffect(lineLighting);
                 
-                // Tooltip to indicate the packet size - Meh tooltips suck REPLACE IT
-                Tooltip t = new Tooltip(Integer.toString((int)packetSize));
-                Tooltip.install(line, t);
+                line.setOnMouseEntered(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent t) {
+                        Double d = frame.getPacketSize() / 1024d;
+                        selectedBarSizeText = new Text(df.format(d) + " KiloBytes");
+                        selectedBarSizeText.setLayoutX(getWidth() / 2);
+                        selectedBarSizeText.setLayoutY(MARGIN / 2);
+                        drawNeeded();
+                    }
+                });
                 
                 line.setUserData(frame);
 
@@ -344,6 +301,9 @@ public class BarGraph {
             textFramesTo.setY(MARGIN / 2);
 
             topLayer.getChildren().addAll(textFramesFrom, textFramesTo);
+            
+            if(selectedBarSizeText != null)
+                topLayer.getChildren().add(selectedBarSizeText);
 
         
         } catch (Exception ex) {
