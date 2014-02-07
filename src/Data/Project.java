@@ -65,8 +65,8 @@ public final class Project {
         
         // Init variables
         
-        // Estimated value ... as 80% extra are audio frames
-        expectedFrames = (int) (durationInSeconds * frameRate * 1.8d);
+        // Estimated value
+        expectedFrames = durationInSeconds * frameRate;
         
         // Create Frame List as estimated size
         // So we don't need to resize the ArrayList while reading frames

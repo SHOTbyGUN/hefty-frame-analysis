@@ -23,16 +23,6 @@ public class Frame {
     //public static Paint idrColor = getLinearPaint(Color.RED);
     public static Paint unknownColor = Color.GRAY;
     
-    public static Paint getLinearPaint(Color inputColor) {
-        Stop[] stops;
-        LinearGradient linear;
-        
-        
-        stops = new Stop[] {new Stop(0, inputColor), new Stop(1, Color.BLACK)};
-        linear = new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE, stops);
-        return linear;
-    }
-    
     private final FrameType frameType;
     private final int frameSize;
     

@@ -97,22 +97,21 @@ public class ffprobeReader extends RootThread {
         try {
             // we should not need be able to read video info and frame data at the same time.... but this prevents it anyway
             readLock.lock();
-            // Example command line: "D:\Ohjelmat\ffprobe\bin\ffprobe.exe" -show_frames "D:\Videot\Stream\filu (02).mp4"
-            // Example command line version 2:
             // -v quiet -show_frames -of compact=p=0 -show_entries frame=pkt_size,pict_type:frame_tags -select_streams v:0 "D:\Videot\Stream\filu (05).mp4"
-            // TODO a way to start ffprobe in low priority
             
             // -select_streams v:0
-            
+            /*
+            It is impossible to start executable with low priority , and then to be able to destroy it in windows
             if(SystemUtils.IS_OS_WINDOWS)
                 process = Runtime.getRuntime().exec("cmd /c start /B /low " + Statics.settings.getSettings().getProperty("ffprobePath") + " " + params);
-            else if(SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_UNIX)
+            else 
+                */
+            if(SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_UNIX)
                 process = Runtime.getRuntime().exec("/usr/bin/nice -n 15 " + Statics.settings.getSettings().getProperty("ffprobePath") + " " + params);
             else if(SystemUtils.IS_OS_MAC)
                 process = Runtime.getRuntime().exec("nice -n 15 " + Statics.settings.getSettings().getProperty("ffprobePath") + " " + params);
             else
                 process = Runtime.getRuntime().exec(Statics.settings.getSettings().getProperty("ffprobePath") + " " + params);
-            
             
             input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             error = new BufferedReader(new InputStreamReader(process.getErrorStream()));

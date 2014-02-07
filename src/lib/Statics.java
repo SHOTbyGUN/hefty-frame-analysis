@@ -23,7 +23,7 @@ public class Statics {
     // Global Init Constants
     public static final String applicationName = "Hefty Frame Analysis";
     public static final String applicationShortName = applicationName.replace(" ", "");
-    public static final String version = "v0.2";
+    public static final String version = "v0.3";
     public static boolean debug = true;
     public static boolean dumpData = false;
     

@@ -11,8 +11,10 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.Tooltip;
 import javafx.scene.effect.Light;
@@ -180,17 +182,20 @@ public class BarGraph {
     }
     
     public Double getWidth() {
-        return stackPane.getBoundsInLocal().getWidth() - MARGIN;
+        //return stackPane.getBoundsInLocal().getWidth() - MARGIN;
+        return stackPane.getLayoutBounds().getWidth() - MARGIN;
     }
     
     public Double getHeight() {
-        return stackPane.getBoundsInLocal().getHeight() - MARGIN;
+        //return stackPane.getBoundsInLocal().getHeight() - MARGIN;
+        return stackPane.getLayoutBounds().getHeight() - MARGIN;
     }
     
     public void draw() {
         
         // check if we need to draw bottom layer
-        if(lastWidth != getWidth() || lastHeight != getHeight()) {
+        //if(lastWidth != getWidth() || lastHeight != getHeight()) {
+        if(Math.abs(lastWidth - getWidth()) > 1 || Math.abs(lastHeight - getHeight()) > 1) {
             drawBottomLayer();
             lastWidth = getWidth();
             lastHeight = getHeight();
@@ -219,8 +224,48 @@ public class BarGraph {
             // Draw top/bottom lines which hold the bars in between
             topLine = new Line(0, MARGIN, getWidth() + MARGIN, MARGIN);
             bottomLine = new Line(0, getHeight(), getWidth() + MARGIN, getHeight()); 
-
+            
             bottomLayer.getChildren().addAll(bottomLine, topLine);
+            
+            HBox legendBox = new HBox();
+            
+            Line line;
+            Label label = null;
+            
+            // Draw legend
+            for(int i = 1; i < 4;i++) {
+                
+                line = new Line(0, 0, 20, 0);
+                
+                // Style the line
+                line.setStrokeWidth(BAR_WIDTH);
+                line.setStrokeLineCap(StrokeLineCap.BUTT);
+                line.setEffect(lineLighting);
+                
+                switch(i) {
+                    case 1:
+                        label = new Label("B-frame");
+                        line.setStroke(Frame.bColor);
+                        break;
+                    case 2:
+                        label = new Label("P-frame");
+                        line.setStroke(Frame.pColor);
+                        break;
+                    case 3:
+                        label = new Label("I-frame");
+                        line.setStroke(Frame.iColor);
+                        break;
+                }
+                
+                legendBox.getChildren().addAll(line,label);
+                
+            }
+            
+            legendBox.setSpacing(10);
+            legendBox.setLayoutX(getWidth() / 2 - legendBox.getWidth() / 2 - MARGIN);
+            legendBox.setLayoutY(getHeight() + MARGIN / 2);
+            bottomLayer.getChildren().add(legendBox);
+            
 
         } catch (Exception ex) {
             Logger.log(BarGraph.class.getSimpleName(), "Draw Bottom Layer", ex);
@@ -342,8 +387,14 @@ public class BarGraph {
                 firstDrawDone = true;
             }
         } else {
-            if(fineTuneIsActive)
-                slider.setValue(slider.getValue() + fineTuneSlider.getValue());
+            if(fineTuneIsActive) {
+                if(fineTuneSlider.getValue() > 0) {
+                    slider.setValue(slider.getValue() + (Math.pow(fineTuneSlider.getValue(), 2)) );
+                } else {
+                    slider.setValue(slider.getValue() - (Math.pow(fineTuneSlider.getValue(), 2)) );
+                }
+            }
+                
         }
     }
     

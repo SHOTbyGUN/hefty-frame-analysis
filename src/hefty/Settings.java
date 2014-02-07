@@ -107,7 +107,7 @@ public class Settings {
         currentSettings.setProperty(lowGraphicsMode, Boolean.toString(lowGraphicsModeCheckBox.isSelected()));
         
         // if ffprobe path is atleast SOMETHING change welcome message
-        if(ffprobePathTextField.getText().length() > 1 &&  Statics.mainGuiController.getDragAndDropText().getText() != Statics.defaultDragAndDropText) {
+        if(ffprobePathTextField.getText().length() > 1 &&  !Statics.mainGuiController.getDragAndDropText().getText().equals(Statics.defaultDragAndDropText)) {
             Statics.mainGuiController.getDragAndDropText().setText(Statics.defaultDragAndDropText);
         }
         
