@@ -16,4 +16,9 @@ Hefty Frame Analysis
   4. Drag & Drop video files into the application
   5. The data is now visible in corresponding tabs
 
+<h4>Features</h4>
+  - Visualize frame types used in video
+  - Simple drag and drop interface
+  - No other features, so basically what you see is what you get.
+
 <img src="http://i.imgur.com/rZq5X3Z.png" />
