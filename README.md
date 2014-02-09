@@ -3,7 +3,7 @@ Hefty Frame Analysis
 
 <p>Graphical User Interface for the ffprobe tool</p>
 
-<a href="https://github.com/SHOTbyGUN/hefty-frame-analysis/releases"><h4>Download here</h4></a>
+<a href="https://github.com/SHOTbyGUN/hefty-frame-analysis/releases"><p><b>Download here</b></p></a>
 
 <h4>Requirements</h4>
   - <a href="http://java.com" target="_blank">Java 7</a>
