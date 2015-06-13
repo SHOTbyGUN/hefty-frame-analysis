@@ -230,6 +230,8 @@ public class BarGraph {
 
             // calculate how many bars we can fit into the window
             int howManyBars = (int) (getWidth() / OPTIMAL_BAR_SPACE);
+            // prevent out of bounds error at beginning of reading data
+            howManyBars = Math.min(project.totalFrames, howManyBars);
             lastHowManyBars = howManyBars;
 
             // calculate bar delimiter
@@ -342,7 +344,7 @@ public class BarGraph {
         }
         
         if(!firstDrawDone) {
-            if(project.totalFrames > 500) {
+            if(project.totalFrames > 1) {
                 drawNeeded();
                 firstDrawDone = true;
             }

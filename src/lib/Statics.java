@@ -25,7 +25,7 @@ public class Statics {
     public static final String applicationShortName = applicationName.replace(" ", "");
     public static final String version = "v0.3";
     public static boolean debug = true;
-    public static boolean dumpData = false;
+    public static boolean dumpData = true;
     
     public static final String logFilePath = FileOperations.getWorkingDirectory() + File.separator + "HeftyFrameAnalysis.log";
     public static final String dataDumpFilePath = FileOperations.getWorkingDirectory() + File.separator + "dataDump.txt";

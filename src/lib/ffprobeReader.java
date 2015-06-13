@@ -12,7 +12,10 @@ import Data.Project;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.concurrent.locks.ReentrantLock;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 
 /**
@@ -45,7 +48,9 @@ public class ffprobeReader extends RootThread {
     }
     
     public BufferedReader getVideoInfo() {
-        return execute('"' + project.videoFileAbsolutePath + '"', false);
+        LinkedList<String> paramList = new LinkedList<>();
+        paramList.add(project.videoFileAbsolutePath);
+        return execute(paramList, false);
     }
     
     @Override
@@ -59,10 +64,17 @@ public class ffprobeReader extends RootThread {
         String rowSplitter = ";";
         String kvSplitter = "=";
         
-        // -v quiet -show_frames -of compact=s=;:p=0 -show_entries frame=pkt_size,pict_type:frame_tags -select_streams v:0 "D:\Videot\Stream\filu (05).mp4"
-        BufferedReader data = execute("-v quiet -show_frames -of compact=s=;:p=0 -show_entries frame=pkt_size,pict_type:frame_tags -select_streams v:0 \"" 
-                + project.videoFileAbsolutePath + '"', true);
+        LinkedList<String> paramList = new LinkedList<>();
         
+        // -v quiet -show_frames -of compact=s=;:p=0 -show_entries frame=pkt_size,pict_type:frame_tags -select_streams v:0 "D:\Videot\Stream\filu (05).mp4"
+        
+        // Build the param list
+        
+        String[] tempParam = "-v quiet -show_frames -of compact=s=;:p=0 -show_entries frame=pkt_size,pict_type:frame_tags -select_streams v:0".split(" ");
+        paramList.addAll(Arrays.asList(tempParam));
+        paramList.add(project.videoFileAbsolutePath);
+        
+        BufferedReader data = execute(paramList, true);
         // Expected output per line: pkt_size=407|pict_type=B
         
         try {
@@ -93,7 +105,7 @@ public class ffprobeReader extends RootThread {
         }
     }
 
-    public BufferedReader execute(String params, boolean runOnBackground) {
+    public BufferedReader execute(LinkedList<String> paramList, boolean runOnBackground) {
         try {
             // we should not need be able to read video info and frame data at the same time.... but this prevents it anyway
             readLock.lock();
@@ -106,12 +118,24 @@ public class ffprobeReader extends RootThread {
                 process = Runtime.getRuntime().exec("cmd /c start /B /low " + Statics.settings.getSettings().getProperty("ffprobePath") + " " + params);
             else 
                 */
-            if(SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_UNIX)
-                process = Runtime.getRuntime().exec("/usr/bin/nice -n 15 " + Statics.settings.getSettings().getProperty("ffprobePath") + " " + params);
-            else if(SystemUtils.IS_OS_MAC)
-                process = Runtime.getRuntime().exec("nice -n 15 " + Statics.settings.getSettings().getProperty("ffprobePath") + " " + params);
-            else
-                process = Runtime.getRuntime().exec(Statics.settings.getSettings().getProperty("ffprobePath") + " " + params);
+            paramList.addFirst(Statics.settings.getSettings().getProperty("ffprobePath"));
+            
+            
+            if(SystemUtils.IS_OS_LINUX || SystemUtils.IS_OS_UNIX || SystemUtils.IS_OS_MAC) {
+                paramList.addFirst("-n 15");
+                paramList.addFirst("nice");
+            }
+            
+            // Create array
+            String[] params = new String[paramList.size()];
+            params = paramList.toArray(params);
+            
+            // Debug params
+            //process = Runtime.getRuntime().exec("/usr/bin/nice -n 15 " + Statics.settings.getSettings().getProperty("ffprobePath") + " " + params);
+            System.out.println(Arrays.toString(params));
+            
+            // execute command
+            process = Runtime.getRuntime().exec(params);
             
             input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             error = new BufferedReader(new InputStreamReader(process.getErrorStream()));
@@ -132,6 +156,8 @@ public class ffprobeReader extends RootThread {
                             Logger.log("ffprobeReader", "BackGround thread interrupted", ex);
                         } catch (IOException ex) {
                             Logger.log("ffprobeReader", "BackGround thread input read error", ex);
+                        } finally {
+                            System.out.println("BackGround thread finished executing");
                         }
                     }
                 });
