@@ -5,10 +5,7 @@
 package Data;
 
 import javafx.scene.paint.Color;
-import javafx.scene.paint.CycleMethod;
-import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Paint;
-import javafx.scene.paint.Stop;
 import lib.Logger;
 
 /**
